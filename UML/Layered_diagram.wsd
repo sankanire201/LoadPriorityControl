@@ -6,6 +6,8 @@ package "Model Layer" {
         +power_consumption: int
         +connected: bool
         +observers: list
+        +last_command
+        +flagged
         +turn_on()
         +turn_off()
         +get_power_consumption()
@@ -24,6 +26,8 @@ package "Model Layer" {
         +power_consumption: int
         +connected: bool
         +observers: list
+        +last_command
+        +flagged
         +turn_on()
         +turn_off()
         +get_power_consumption()
