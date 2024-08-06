@@ -18,7 +18,7 @@ from UserInterface import UserInterface
 
 class SmartPlug(Observable, CommunicationService, Device):
 
-    def __init__(self, id: int) -> None:
+    def __init__(self, id: int,priority:int) -> None:
         super().__init__()
         self._id = id
         self._status = 2
@@ -27,6 +27,7 @@ class SmartPlug(Observable, CommunicationService, Device):
         self._observers = []
         self._flagged=False
         self._last_command= None
+        self._priority = priority
 
     def turn_on(self) -> None:
         if self._connected:
@@ -41,10 +42,9 @@ class SmartPlug(Observable, CommunicationService, Device):
         if self._connected:
             self._last_command=0
             self._flagged=False
-            print("Turning Off", self._id)
+            print("Turning Off Plug", self._id)
         else:
             self._flagged=True
-        
 
     def get_power_consumption(self) -> None:
         return self._power_consumption
@@ -52,7 +52,10 @@ class SmartPlug(Observable, CommunicationService, Device):
     def set_power_consumption(self, power: int) -> None:
         self._power_consumption = power
         self.notify_observers()
-
+        
+    def set_priority(self,priority:int)->None:
+        self._priority=priority
+        
     def register_Observer(self, observer: Observer) -> None:
         self._observers.append(observer)
 
@@ -64,7 +67,7 @@ class SmartPlug(Observable, CommunicationService, Device):
             observer.update(self._id, self._power_consumption)
 
     def connect(self) -> None:
-        print("connecting")
+        print("connecting")s
         self._connected = True
 
     def check_health(self) -> None:
