@@ -1,0 +1,28 @@
+@startuml
+actor User
+
+usecase "Define Priorities" as UC1
+usecase "Set Power Consumption Threshold" as UC2
+usecase "Add Smart Plug" as UC3
+usecase "Turn On/Off Smart Plugs" as UC4
+usecase "Display Smart Plug Status" as UC5
+usecase "Connect to Device" as UC6
+usecase "Check Device Health" as UC7
+
+User --> UC1
+User --> UC2
+User --> UC3
+User --> UC4
+User --> UC5
+User --> UC6
+User --> UC7
+
+package "Priority managment of Smart Plugs" {
+    UC1 -down-> UC4 : <<uses>>
+    UC2 -down-> UC4 : <<uses>>
+    UC3 -down-> UC4 : <<uses>>
+    UC6 -down-> UC4 : <<uses>>
+    UC7 -down-> UC4 : <<uses>>
+    UC4 -down-> UC5 : <<uses>>
+}
+@enduml

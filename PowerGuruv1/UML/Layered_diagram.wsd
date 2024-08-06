@@ -1,0 +1,145 @@
+@startuml
+package "Model Layer" {
+    class SmartPlug {
+        +id: int
+        +status: str
+        +power_consumption: int
+        +connected: bool
+        +observers: list
+        +last_command
+        +flagged
+        +priority
+        +turn_on()
+        +turn_off()
+        +get_power_consumption()
+        +set_power_consumption(power: int)
+        +set_priority(priority: int)
+        +register_observer(observer: Observer)
+        +remove_observer(observer: Observer)
+        +notify_observers()
+        +connect()
+        +check_health()
+        +__str__()
+    }
+
+    class SmartLight {
+        +id: int
+        +status: str
+        +power_consumption: int
+        +connected: bool
+        +observers: list
+        +last_command
+        +flagged
+        +priority
+        +turn_on()
+        +turn_off()
+        +get_power_consumption()
+        +set_power_consumption(power: int)
+        +set_priority(priority: int)
+        +register_observer(observer: Observer)
+        +remove_observer(observer: Observer)
+        +notify_observers()
+        +connect()
+        +check_health()
+        +__str__()
+    }
+
+    interface Observable {
+        +register_observer(observer: Observer)
+        +remove_observer(observer: Observer)
+        +notify_observers()
+    }
+    interface Device {
+        +turn_on()
+        +turn_off()
+        +get_power_consumption()
+        +set_power_consumption()
+        +get_device_id()
+    }
+
+
+    interface CommunicationService {
+        +connect()
+        +check_health()
+    }
+}
+
+package "Facade Layer" {
+    interface IOTDeviceFacade {
+        +turn_on(device_id: int)
+        +turn_off(device_id: int)
+        +get_power_consumption(device_id: int)
+        +add_device(device)
+        +set_power_consumption(device_id: int, power: int)
+        +connect_device(device_id: int)
+        +check_device_health(device_id: int)
+    }
+
+    class IOTDeviceFacadeImpl implements IOTDeviceFacade {
+        -devices: dict
+        +add_device(device)
+        +turn_on(device_id: int)
+        +turn_off(device_id: int)
+        +get_power_consumption(device_id: int)
+        +set_power_consumption(device_id: int, power: int)
+        +connect_device(device_id: int)
+        +check_device_health(device_id: int)
+    }
+}
+
+package "Controller Layer" {
+    class SmartPlugController {
+        -facade: IOTDeviceFacade
+        -current_strategy: PriorityControlStrategy
+        +add_smart_plug(smart_plug)
+        +set_strategy(strategy: PriorityControlStrategy)
+        +execute_strategy()
+    }
+}
+
+package "Strategy Layer" {
+    interface PriorityControlStrategy {
+        +execute(facade: IOTDeviceFacade)
+    }
+
+    class SimplePriorityStrategy implements PriorityControlStrategy {
+        +execute(facade: IOTDeviceFacade)
+    }
+}
+
+package "Monitoring Layer" {
+    interface Observer {
+        +update(device_id: int, power_consumption: int)
+    }
+
+    class PowerConsumptionMonitor implements Observer {
+        +threshold: int
+        +update(device_id: int, power_consumption: int)
+    }
+}
+
+package "View Layer" {
+    class UserInterface {
+        +display_status(devices)
+        +get_user_priority()
+        +get_power_threshold()
+    }
+}
+
+Observable <|.. SmartPlug
+Observable <|.. SmartLight
+Device <|.. SmartLight
+Device <|.. SmartLight
+CommunicationService <|.. SmartPlug
+CommunicationService <|.. SmartLight
+IOTDeviceFacade <|.. IOTDeviceFacadeImpl
+SmartPlugController --> IOTDeviceFacade
+SmartPlugController --> PriorityControlStrategy
+PriorityControlStrategy <|.. SimplePriorityStrategy
+PowerConsumptionMonitor --> Observer
+PowerConsumptionMonitor --> SmartPlugController
+UserInterface --> SmartPlugController
+SmartPlug --> PowerConsumptionMonitor
+SmartLight --> PowerConsumptionMonitor
+IOTDeviceFacadeImpl --> Device
+@enduml
