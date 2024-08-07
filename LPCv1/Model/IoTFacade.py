@@ -1,0 +1,51 @@
+from abc import ABC, abstractmethod
+from IoTDevice import IoTDevice
+
+
+class IoTFacade(ABC):
+    def __init__(self) -> None:
+        super().__init__()
+        """_summary_
+        The IoTFacade interface defines the methods for managing group of Smart devices
+        """    
+        
+    @abstractmethod
+    def turn_On(self, device_id: int)->None:
+        pass
+    
+    @abstractmethod
+    def turn_Off(self,device_id: int)-> None:
+        pass
+    
+    @abstractmethod
+    def add_Device(self, device: IoTDevice)->None:
+        pass
+    
+    @abstractmethod
+    def remove_Device(self, device: IoTDevice)->None:
+        pass
+    
+    @abstractmethod
+    def get_Power_Consumption(self, device_id: int) ->int:
+        pass
+    
+    @abstractmethod
+    def set_Priority(self, device_id: int, priority: int) -> None:
+        pass
+    
+    @abstractmethod 
+    def get_Priority(self,device_id: int) ->int:
+        pass
+    
+    @abstractmethod
+    def get_Devices(self)->dict:
+        pass
+    
+    @abstractmethod
+    def all_On(self)->None:
+        pass
+    
+    @abstractmethod
+    def all_Off(self)->None:
+        pass
+        
