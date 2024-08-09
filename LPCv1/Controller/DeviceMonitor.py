@@ -38,13 +38,14 @@ class DeviceMonitor(ObserverSubject):
         self._observers[self._notificationObserverID].update(self._message['power'],self._message['status'],self._message['priority'])
     
     def process_Message(self,message:any)->IoTMessage:
+        
         #topic = "devices/building540/NIRE_WeMo_cc_1/w3/all"
-        if message['topic'].split('/')[0] == 'device':
+        if message['topic'].split('/')[0] == 'devices':
             self._notificationObserverID = message['topic'].split('/')[-2]
             self._message=message['Message']
             self.notify_Observers()
         elif message['topic'].split('/')[0]  =='control' :
-            self._emscontroller.execute_Strategy(message['Message'])
+            self._emscontroller.execute_Strategy({'controlType':message['topic'].split('/')[-1], 'cmd':message['Message']})
         
     def set_EMS_Controller(self,emscontroller: EMSControl)->None:
          self._emscontroller = emscontroller

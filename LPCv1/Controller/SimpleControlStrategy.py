@@ -8,6 +8,7 @@ logger = logging.getLogger(__name__)
 class SimpleControlStrategy(ControlStrategy):
     def __init__(self) -> None:
         super().__init__()
+        self._controlType='simple'
         
     def execute(self,Group,cmd) -> None:
         for device_id in Group._devices.keys():

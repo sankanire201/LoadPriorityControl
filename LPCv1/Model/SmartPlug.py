@@ -40,6 +40,7 @@ class SmartPlug(Observer,IoTDevice):
     def turn_On(self) -> None:
         self._message.message_type='command'
         self._message.payload={'cmd',1}
+        self._message.priority=self._priority
         self.publish()
         self._last_command=self._message
         
@@ -47,6 +48,7 @@ class SmartPlug(Observer,IoTDevice):
     def turn_Off(self) -> None:
         self._message.message_type='command'
         self._message.payload={'cmd',0}
+        self._message.priority=self._priority
         self.publish()
         self._last_command=self._message
     

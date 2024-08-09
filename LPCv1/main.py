@@ -17,6 +17,13 @@ def Message(topic,power,status,priority) -> dict:
     
     return message
 
+def Command(topic,cmd) -> dict:
+    message={}
+    message['topic']=topic
+    message['Message']=cmd
+    
+    return message
+
 def main():
     
     """
@@ -30,7 +37,12 @@ def main():
     controldirect = DirectControl()
     controlshed = SheddingControl()
     controlincrement = IncrementalControl()
-    emscontroller = EMSControl(controlsimple,group)
+    emscontroller = EMSControl()
+    emscontroller.add_Controller(controlsimple)
+    emscontroller.set_Group(group)
+    emscontroller.add_Controller(controldirect)
+    emscontroller.add_Controller(controlincrement)
+    emscontroller.add_Controller(controlshed)
     
     """Assign smart Plugs to the Group Facade
     """    
@@ -44,11 +56,15 @@ def main():
     
     monitor.set_EMS_Controller(emscontroller)
     
-    monitor.process_Message(Message("devices/building540/NIRE_WeMo_cc_1/w1/all",200,1,1))
+    monitor.process_Message(Message("devices/building540/NIRE_WeMo_cc_1/w1/all",200,1,2))
     monitor.process_Message(Message("devices/building540/NIRE_WeMo_cc_1/w2/all",20,1,2))
     monitor.process_Message(Message("devices/building540/NIRE_WeMo_cc_1/w3/all",500,1,1))
-    monitor.process_Message(Message("devices/building540/NIRE_WeMo_cc_1/w4/all",400,1,3))
-    monitor.process_Message(Message("control/building540/NIRE_WeMo_cc_1/w1/all",200,1,1))
+    monitor.process_Message(Message("devices/building540/NIRE_WeMo_cc_1/w4/all",400,1,5))
+    monitor.process_Message(Command("control/building540/simple",30))
+    monitor.process_Message(Command("control/building540/direct",command))   
+    monitor.process_Message(Command("control/building540/shed",command)) 
+    monitor.process_Message(Command("control/building540/increment",command)) 
+    
     
     #emscontroller.execute_Strategy(1)
     

@@ -10,6 +10,7 @@ class DirectControl(ControlStrategy):
     
     def __init__(self) -> None:
         super().__init__()
+        self._controlType='direct'
         
     def execute(self,group: IoTDeviceGroup,cmd: any) -> None:
         for device in cmd:

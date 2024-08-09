@@ -22,6 +22,7 @@ interface IoTDevice {
 }
 
 interface ControlStrategy {
+    -controType:str
     +execute(Devices: IoTDeviceGroup,cmd: any)
 }
 
@@ -89,24 +90,28 @@ class DeviceMonitor{
 }
 
 class SimpleControl{
+    -controType:str
     +execute(Devices: IoTDeviceGroup,cmd: any)
 }
 
 class DirectControl{
+    -controType:str
     +execute(Devices: IoTDeviceGroup,cmd: any)
 }
 
 class SheddingControl{
+    -controType:str
     +execute(Devices: IoTDeviceGroup,cmd: any)
 }
 
 class IncrementalControl{
+    -controType:str
     +execute(Devices: IoTDeviceGroup)
 }
 
 class EMSControl{
-    -controlstratagey: ControlStrategy
-    -devicegroup: IoTDeviceGroup
+    -controlstratagey: dict
+    -devicegroup: dict
     +execute_Strategy(message:any)
 }
 

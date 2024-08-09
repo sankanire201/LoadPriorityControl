@@ -10,6 +10,7 @@ class IncrementalControl(ControlStrategy):
     
     def __init__(self) -> None:
         super().__init__()
+        self._controlType='increment'
         
     def execute(self,group: IoTDeviceGroup, cmd: any) -> None:
-        return super().execute()
+        print("executing Incremntal control")

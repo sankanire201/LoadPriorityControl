@@ -9,6 +9,7 @@ class SheddingControl(ControlStrategy):
     
     def __init__(self) -> None:
         super().__init__()
+        self._controlType='shed'
         
     def execute(self,group: IoTDeviceGroup, cmd: any) -> None:
-        return super().execute()
+        print("Executing shedding control")

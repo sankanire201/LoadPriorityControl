@@ -7,6 +7,7 @@ class ControlStrategy(ABC):
     
     def __init__(self) -> None:
         super().__init__()
+        self._controlType=None
     
     @abstractmethod
     def execute(self,group:IoTDeviceGroup,cmd:any)->None:
