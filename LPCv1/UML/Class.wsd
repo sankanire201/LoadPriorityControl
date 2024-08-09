@@ -22,7 +22,7 @@ interface IoTDevice {
 }
 
 interface ControlStrategy {
-    +execute(Devices: IoTDeviceGroup)
+    +execute(Devices: IoTDeviceGroup,cmd: any)
 }
 
 interface IoTFacade {
@@ -78,17 +78,36 @@ class IoTDeviceGroup{
 }
 
 class DeviceMonitor{
+    -message
+    -observers: dict
+    -notificationObserverID
+    -emscontroller
     +register_Observer(observer :Observer)
     +remove_Observer(observer :Observer)
-    +notify_Observers()
-    +monitor_Update(message: dict)
+    +process_Message(message:any): IoTMessage:
+    +set_EMS_Controller(emscontroller: EMSControl)
 }
 
 class SimpleControl{
+    +execute(Devices: IoTDeviceGroup,cmd: any)
+}
+
+class DirectControl{
+    +execute(Devices: IoTDeviceGroup,cmd: any)
+}
+
+class SheddingControl{
+    +execute(Devices: IoTDeviceGroup,cmd: any)
+}
+
+class IncrementalControl{
     +execute(Devices: IoTDeviceGroup)
 }
 
 class EMSControl{
+    -controlstratagey: ControlStrategy
+    -devicegroup: IoTDeviceGroup
+    +execute_Strategy(message:any)
 }
 
 class send{
@@ -105,11 +124,15 @@ class IoTMessage{
 
 ' Relationships
 SimpleControl -|> ControlStrategy
+DirectControl -|> ControlStrategy
+SheddingControl -|> ControlStrategy
+IncrementalControl -|> ControlStrategy
 SmartPlug -|> Observer
 SmartPlug -|> IoTDevice
 IoTDeviceGroup -|> IoTFacade
 IoTDeviceGroup *- IoTDevice
 DeviceMonitor -|> ObserverSubject
+EMSControl *- IoTFacade
 EMSControl *- ControlStrategy
 send *- IoTMessage
 SmartPlug *- IoTMessage

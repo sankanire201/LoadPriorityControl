@@ -1,5 +1,8 @@
-from Publish import Publish
-from IoTMessage import IoTMessage
+
+import sys
+sys.path.append("C:/Users/sanka.liyanage/EMSDesign/LPCv1/Model/")
+from View.Publish import Publish
+from Model.IoTMessage import IoTMessage
 class Send(Publish):
     def __init__(self,vip) -> None:
         super().__init__()

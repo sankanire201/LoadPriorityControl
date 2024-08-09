@@ -1,8 +1,10 @@
-from IoTFacade import IoTFacade
-from IoTDevice import IoTDevice
-from SmartPlug import SmartPlug
-import logging
 
+import sys
+sys.path.append("C:/Users/sanka.liyanage/EMSDesign/LPCv1/")
+from Model.IoTFacade import IoTFacade
+from Model.IoTDevice import IoTDevice
+from Model.SmartPlug import SmartPlug
+import logging
 logger = logging.getLogger(__name__)
 
 
@@ -72,13 +74,19 @@ class IoTDeviceGroup(IoTFacade):
         for device in self._devices:
             self.turn_On(device._id)
     
-if __name__ == "__main__":
-        plug =SmartPlug(1,1)
-        group = IoTDeviceGroup()
-        group.turn_On(2)
-        group.add_Device(plug)
-        group.turn_On(1)
-        group.turn_Off(1)
-        group.remove_Device(plug)
-        group.turn_On(1)
-        group.remove_Device(plug)
+# if __name__ == "__main__":
+#         plug1 =SmartPlug(1,1)
+#         plug2 =SmartPlug(2,1)
+#         plug3 =SmartPlug(3,1)
+        
+#         control=SimpleControlStrategy()
+#         plug1.set_Power_Consumption(100)
+#         plug2.set_Power_Consumption(30)
+#         plug3.set_Power_Consumption(200)
+        
+#         group = IoTDeviceGroup()
+#         group.add_Device(plug1)
+#         group.add_Device(plug2)
+#         group.add_Device(plug3)
+        
+#         control.execute(group)

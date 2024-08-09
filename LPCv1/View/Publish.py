@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 
+
 class Publish(ABC):
     
     def __init__(self) -> None:

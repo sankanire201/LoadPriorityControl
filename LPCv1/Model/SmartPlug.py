@@ -1,7 +1,9 @@
-from Observer import Observer
-from IoTDevice import IoTDevice
-from IoTMessage import IoTMessage
-from Send import Send
+import sys
+sys.path.append("C:/Users/sanka.liyanage/EMSDesign/LPCv1/")
+from Model.Observer import Observer
+from Model.IoTDevice import IoTDevice
+from Model.IoTMessage import IoTMessage
+from View.Send import Send
 from datetime import datetime
 import logging
 
@@ -10,12 +12,12 @@ logger = logging.getLogger(__name__)
 
 class SmartPlug(Observer,IoTDevice):
     """_summary_
-    The smart plug desicribes the methods to control and monitor a smart Plug
+    The smart plug describes the methods to control and monitor a smart Plug
     Args:
-        Observer ( Interface): observer for updating the power consumption 
+        Observer ( Interface): observer for updating IoTdevice statusS
         IoTDevice ( Interface): Interface to use to derive the SmartPlug class
     """    
-    def __init__(self,id :int,vip) -> None:
+    def __init__(self,id :str,vip) -> None:
         """_summary_
 
         Args:
@@ -33,6 +35,7 @@ class SmartPlug(Observer,IoTDevice):
         self._vip=vip
         self._send=Send(vip)
         self._message= IoTMessage(device_id=id,message_type=None,payload=['command',None],timestamp=datetime.now())
+        self._observerid=id
         
     def turn_On(self) -> None:
         self._message.message_type='command'
@@ -62,14 +65,16 @@ class SmartPlug(Observer,IoTDevice):
     def get_Priority(self) -> int:
         return self._priority
     
-    def update(self, power_consumption: int) -> None:
+    def update(self, power_consumption: int, status: int, priority: int) -> None:
         """_summary_
         this method is executed by the observer when ever the power consumption is updated
         Args:
             power_consumption (int): instatntanious power consumption of the smart plug
         """        
         self.set_Power_Consumption(power_consumption)
-    
+        self._priority=priority
+        self._status=status
+        
     def _check_Health(self)-> None:
         pass
     
@@ -85,9 +90,9 @@ class SmartPlug(Observer,IoTDevice):
         self._send.publish(self._message)
         return bool
     
-if __name__ == "__main__":
+# if __name__ == "__main__":
     
-    plug = SmartPlug(1,1)
-    plug.turn_On()
-    plug.turn_Off()
-    print(plug.isFlaged())
+#     plug = SmartPlug(1,1)
+#     plug.turn_On()
+#     plug.turn_Off()
+#     print(plug.isFlaged())

@@ -1,5 +1,7 @@
 from abc import ABC, abstractmethod
-from IoTDevice import IoTDevice
+import sys
+sys.path.append("C:/Users/sanka.liyanage/EMSDesign/LPCv1/")
+from Model.IoTDevice import IoTDevice
 
 
 class IoTFacade(ABC):
