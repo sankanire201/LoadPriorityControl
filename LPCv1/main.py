@@ -46,10 +46,12 @@ def main():
     
     """Assign smart Plugs to the Group Facade
     """    
+    smart_plugs={}
     for i in plugsid:
         plug=SmartPlug(i,1)
         group.add_Device(plug)
         monitor.register_Observer(plug)
+        smart_plugs[i]=plug
         
     """Updating Observers to update power consumption of each plug
     """
@@ -65,6 +67,24 @@ def main():
     monitor.process_Message(Command("control/building540/shed",command)) 
     monitor.process_Message(Command("control/building540/increment",command)) 
     
+    
+    sorted_smart_plugs_pr = sorted(
+    smart_plugs.values(),
+    key=lambda plug: (plug._priority),reverse=True
+    )
+    
+    sorted_smart_plugs_p = sorted(
+    smart_plugs.values(),
+    key=lambda plug: (plug._power_consumptiom),reverse=True
+    )
+# Output the sorted list
+    for plug in sorted_smart_plugs_pr:
+        print(plug._priority)
+    
+# Output the sorted list
+    for plug in sorted_smart_plugs_p:
+        print(plug._power_consumptiom)
+        
     
     #emscontroller.execute_Strategy(1)
     
