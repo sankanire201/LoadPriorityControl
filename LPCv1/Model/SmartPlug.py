@@ -27,7 +27,7 @@ class SmartPlug(Observer,IoTDevice):
         super().__init__()
         self._id=id
         self._status=0
-        self._power_consumptiom=0
+        self._power_consumption=0
         self._connected=0
         self._flagged=False
         self._last_command=0
@@ -53,10 +53,10 @@ class SmartPlug(Observer,IoTDevice):
         self._last_command=self._message
     
     def get_Power_Consumption(self) -> int:
-        return self._power_consumptiom
+        return self._power_consumption
     
     def set_Power_Consumption(self, power: int) -> None:
-        self._power_consumptiom = power
+        self._power_consumption = power
     
     def get_Device_Id(self) -> int:
         return self._id
@@ -76,6 +76,7 @@ class SmartPlug(Observer,IoTDevice):
         self.set_Power_Consumption(power_consumption)
         self._priority=priority
         self._status=status
+        logger.info(f"updating the smart plug{ self._id}: power {self._power_consumption} : priority { self._priority} : status {self._status}")
         
     def _check_Health(self)-> None:
         pass

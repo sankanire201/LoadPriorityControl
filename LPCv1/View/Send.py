@@ -10,5 +10,5 @@ class Send(Publish):
         
     def publish(self, message: IoTMessage) -> bool:
         print("Sending",message)
-        result=self._vip.rpc.call('platform.driver','set_point',message.device_id,'status',message.payload['cmd'],external_platform="NIRE_ALPHA_cc_1")
+        result=self._vip.rpc.call('platform.driver','set_point',message.device_id,'status',message.payload['cmd'],external_platform=message.device_id.split('/')[-2])
         

@@ -9,8 +9,10 @@ from Controller.DirectControl import DirectControl
 from Controller.SheddingControl import SheddingControl
 from Controller.IncrementalControl import IncrementalControl
 from Controller.EMSControl import EMSControl
+
 import sqlite3
 conn = sqlite3.connect('/home/sanka/NIRE_EMS/volttron/FacadeAgent/Device_configure_database.sqlite')
+
 def Message(topic,power,status,priority) -> dict:
     message={}
     message['topic']=topic
@@ -122,4 +124,7 @@ if __name__ == "__main__":
     
     
     
+
+
+
 
