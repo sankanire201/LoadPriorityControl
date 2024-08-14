@@ -1,5 +1,5 @@
 import sys
-sys.path.append("C:/Users/sanka.liyanage/EMSDesign/LPCv1/")
+sys.path.append("/home/sanka/NIRE_EMS/volttron/LoadPriorityControl/LPCv1/")
 from Controller.ControlStrategy import ControlStrategy
 from Model.IoTFacade import IoTFacade
 import logging

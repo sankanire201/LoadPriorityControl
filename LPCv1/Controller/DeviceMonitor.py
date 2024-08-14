@@ -1,6 +1,6 @@
 
 import sys
-sys.path.append("C:/Users/sanka.liyanage/EMSDesign/LPCv1/")
+sys.path.append("/home/sanka/NIRE_EMS/volttron/LoadPriorityControl/LPCv1/")
 from Controller.ObserverSubject import ObserverSubject
 from Model.Observer import Observer
 from Model.IoTMessage import IoTMessage
@@ -41,7 +41,7 @@ class DeviceMonitor(ObserverSubject):
         
         #topic = "devices/building540/NIRE_WeMo_cc_1/w3/all"
         if message['topic'].split('/')[0] == 'devices':
-            self._notificationObserverID = message['topic'].split('/')[-2]
+            self._notificationObserverID = message['topic'].split('/')[-4]+'/'+message['topic'].split('/')[-3]+'/'+message['topic'].split('/')[-2]
             self._message=message['Message']
             self.notify_Observers()
         elif message['topic'].split('/')[0]  =='control' :

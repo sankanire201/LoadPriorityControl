@@ -1,6 +1,6 @@
 
 import sys
-sys.path.append("C:/Users/sanka.liyanage/EMSDesign/LPCv1/")
+sys.path.append("/home/sanka/NIRE_EMS/volttron/LoadPriorityControl/LPCv1/")
 from Model.IoTFacade import IoTFacade
 from Model.IoTDevice import IoTDevice
 from Model.SmartPlug import SmartPlug

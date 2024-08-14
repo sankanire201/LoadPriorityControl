@@ -1,5 +1,5 @@
 import sys
-sys.path.append("C:/Users/sanka.liyanage/EMSDesign/LPCv1/")
+sys.path.append("/home/sanka/NIRE_EMS/volttron/LoadPriorityControl/LPCv1/")
 from Model.Observer import Observer
 from Model.IoTDevice import IoTDevice
 from Model.IoTMessage import IoTMessage
@@ -39,7 +39,7 @@ class SmartPlug(Observer,IoTDevice):
         
     def turn_On(self) -> None:
         self._message.message_type='command'
-        self._message.payload={'cmd',1}
+        self._message.payload={'cmd':1}
         self._message.priority=self._priority
         self.publish()
         self._last_command=self._message
@@ -47,7 +47,7 @@ class SmartPlug(Observer,IoTDevice):
     
     def turn_Off(self) -> None:
         self._message.message_type='command'
-        self._message.payload={'cmd',0}
+        self._message.payload={'cmd':0}
         self._message.priority=self._priority
         self.publish()
         self._last_command=self._message
