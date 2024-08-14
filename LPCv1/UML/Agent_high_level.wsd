@@ -1,0 +1,40 @@
+@startuml 
+
+title Conceptual object interaction diagram for Volttron agents
+usecase Volttron_Message_Bus
+package Agent{
+skinparam component {
+  backgroundColor Orange
+}
+
+skinparam node {
+  borderColor Green
+  backgroundColor Yellow
+  backgroundColor<<Facade/Group>> Magenta
+}
+skinparam databaseBackgroundColor Aqua
+
+
+[EMS Controller] 
+[Status Observer] 
+node IoT_Device_1
+node IoT_Device_n
+node IoT_Facade <<Facade/Group>> 
+
+}
+
+Volttron_Message_Bus -[#Blue]-> [Status Observer] 
+[Status Observer] -[#Red]-> [EMS Controller] 
+[Status Observer] -[#Blue]->  IoT_Device_1
+[Status Observer] -[#Blue]->  IoT_Device_n
+[EMS Controller]  -[#Red]-> IoT_Facade
+IoT_Facade -[#Red]->  IoT_Device_1 
+IoT_Facade -[#Red]->  IoT_Device_n
+IoT_Device_1 -[#Red]-> Volttron_Message_Bus
+IoT_Device_n -[#Red]-> Volttron_Message_Bus
+
+legend
+    |<back:#Blue>  </back> -->  | Monitoring Signals |
+    |<back:#Red>  </back>  --> | Control Signals |
+end legend
+@enduml
