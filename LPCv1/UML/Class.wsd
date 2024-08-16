@@ -64,9 +64,8 @@ class: IoTDeviceGroupManager {
     +def remove_Group(group: IoTDeviceGroup)
     +def execute_Strategy(message:any)
     +def set_Group_Stratagy(group,controller)
-
-
 } 
+
 
 class SmartPlug{
     -id :int
