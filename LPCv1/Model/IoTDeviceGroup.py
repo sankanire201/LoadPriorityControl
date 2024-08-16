@@ -5,6 +5,7 @@ from Model.IoTFacade import IoTFacade
 from Model.IoTDevice import IoTDevice
 from Model.SmartPlug import SmartPlug
 import logging
+from itertools import groupby
 logger = logging.getLogger(__name__)
 
 
@@ -61,7 +62,6 @@ class IoTDeviceGroup(IoTFacade):
                     logger.error(f"Facade is Empty {e}")
         except Exception as e:
                 logger.error(f"Error in the Facade: {e}")
-
     
     def get_Devices(self) -> dict:
         return self._devices
@@ -73,20 +73,30 @@ class IoTDeviceGroup(IoTFacade):
     def all_Off(self) -> None:
         for device in self._devices:
             self.turn_On(device._id)
+            
+    def get_Facade_Consumption(self)->dict:
+        sorted_smart_plugs = sorted(self._devices.values(),key=lambda plug: plug._priority)
+        power_consumption_by_priority = {}
+        for key, group in groupby(sorted_smart_plugs, key=lambda plug: plug._priority):
+            power_consumption_by_priority[key] = sum(plug._power_consumption for plug in group)
+        return power_consumption_by_priority
     
-# if __name__ == "__main__":
-#         plug1 =SmartPlug(1,1)
-#         plug2 =SmartPlug(2,1)
-#         plug3 =SmartPlug(3,1)
+    
+#if __name__ == "__main__":
+        # plug1 =SmartPlug(1,1)
+        # plug2 =SmartPlug(2,1)
+        # plug3 =SmartPlug(3,1)
         
-#         control=SimpleControlStrategy()
-#         plug1.set_Power_Consumption(100)
-#         plug2.set_Power_Consumption(30)
-#         plug3.set_Power_Consumption(200)
+        # plug1.set_Power_Consumption(100)
+        # plug2.set_Power_Consumption(30)
+        # plug3.set_Power_Consumption(200)
+        # plug1.set_Priority(2)
+        # plug2.set_Priority(0)
+        # plug3.set_Priority(0)
         
-#         group = IoTDeviceGroup()
-#         group.add_Device(plug1)
-#         group.add_Device(plug2)
-#         group.add_Device(plug3)
+        # group = IoTDeviceGroup()
+        # group.add_Device(plug1)
+        # group.add_Device(plug2)
+        # group.add_Device(plug3)
+        # print(group.get_Facade_Consumption())
         
-#         control.execute(group)

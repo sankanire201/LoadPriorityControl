@@ -21,6 +21,16 @@ interface IoTDevice {
     +get_Priority() :int
 }
 
+interface IoTFacadeManager {
+    +group_By_Priority(key) : IoTDeviceGroup
+    +def clear_Groups_Stratgies()
+    +add_Group(group:IoTDeviceGroup)
+    +def remove_Group(group: IoTDeviceGroup)
+    +def execute_Strategy(message:any)
+    +def set_Group_Stratagy(group,controller)
+
+}
+
 interface ControlStrategy {
     -controType:str
     +execute(Devices: IoTDeviceGroup,cmd: any)
@@ -42,6 +52,21 @@ interface IoTFacade {
 interface Publish {
     +publish(message :dict) :bool
 }
+
+
+class: IoTDeviceGroupManager {
+        -groups:list
+        -group_control_stratagey:dict
+        -sorted_groups:dict
+    +group_By_Priority(key) : IoTDeviceGroup
+    +def clear_Groups_Stratgies()
+    +add_Group(group:IoTDeviceGroup)
+    +def remove_Group(group: IoTDeviceGroup)
+    +def execute_Strategy(message:any)
+    +def set_Group_Stratagy(group,controller)
+
+
+} 
 
 class SmartPlug{
     -id :int
@@ -145,5 +170,7 @@ send -|> Publish
 SmartPlug *- send
 SimpleControl *- IoTDeviceGroup
 DeviceMonitor *- Observer
+IoTDeviceGroupManager -|> IoTFacadeManager
+IoTDeviceGroupManager *- IoTDeviceGroup
 
 @enduml

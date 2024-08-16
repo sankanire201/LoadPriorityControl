@@ -32,6 +32,10 @@ class IoTFacade(ABC):
         pass
     
     @abstractmethod
+    def get_Facade_Consumption(self)->dict:
+        pass
+    
+    @abstractmethod
     def set_Priority(self, device_id: int, priority: int) -> None:
         pass
     

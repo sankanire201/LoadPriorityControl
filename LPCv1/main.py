@@ -1,6 +1,6 @@
 import sys
 sys.path.append("/home/sanka/NIRE_EMS/volttron/LoadPriorityControl/LPCv1/")
-
+from itertools import groupby
 from Model.SmartPlug import SmartPlug
 from Model.IoTDeviceGroup import IoTDeviceGroup
 from Controller.SimpleControlStrategy import SimpleControlStrategy
@@ -9,21 +9,21 @@ from Controller.DirectControl import DirectControl
 from Controller.SheddingControl import SheddingControl
 from Controller.IncrementalControl import IncrementalControl
 from Controller.EMSControl import EMSControl
-
+from Model.IoTDeviceGroupManager import IoTDeviceGroupManager
 import sqlite3
 conn = sqlite3.connect('/home/sanka/NIRE_EMS/volttron/FacadeAgent/Device_configure_database.sqlite')
 
 def Message(topic,power,status,priority) -> dict:
     message={}
     message['topic']=topic
-    message['Message']={'power':power,'status':status,'priority':priority}
+    message['message']=[{'power':power,'status':status,'priority':priority}]
     
     return message
 
 def Command(topic,cmd) -> dict:
     message={}
     message['topic']=topic
-    message['Message']=cmd
+    message['message']=[cmd]
     
     return message
 
@@ -57,8 +57,13 @@ def main():
         conn.close()
         
         plugsid = ['w1','w2','w3', 'w4']
-        command ={'building540/NIRE_WeMo_CC_1/w1':1,'building540/NIRE_WeMo_CC_1/w1':0,'building540/NIRE_WeMo_CC_1/w1':1,'building540/NIRE_WeMo_CC_1/w1':0}
+        command ={'building540/NIRE_WeMo_cc_1/w1':1,'building540/NIRE_WeMo_cc_1/w1':0,'building540/NIRE_WeMo_cc_1/w1':1,'building540/NIRE_WeMo_cc_1/w1':0}
+        
+        groupFacade = IoTDeviceGroupManager()
         group = IoTDeviceGroup() # Group Facade
+        groupFacade.add_Group(group)
+
+        
         monitor = DeviceMonitor() # Monitor for smart plug update
         controlsimple =  SimpleControlStrategy()
         controldirect = DirectControl()
@@ -71,6 +76,7 @@ def main():
         emscontroller.add_Controller(controlincrement)
         emscontroller.add_Controller(controlshed)
         
+        
         """Assign smart Plugs to the Group Facade
         """    
         smart_plugs={}
@@ -79,38 +85,40 @@ def main():
             group.add_Device(plug)
             monitor.register_Observer(plug)
             smart_plugs[row]=plug
-            
-        """Updating Observers to update power consumption of each plug
-        """
+        print(groupFacade.group_By_Priority())
         
-        monitor.set_EMS_Controller(emscontroller)
         
-        monitor.process_Message(Message("devices/building540/NIRE_WeMo_CC_1/w1/all",200,1,2))
-        monitor.process_Message(Message("devices/building540/NIRE_WeMo_CC_1/w2/all",20,1,2))
-        monitor.process_Message(Message("devices/building540/NIRE_WeMo_CC_1/w3/all",500,1,1))
-        monitor.process_Message(Message("devices/building540/NIRE_WeMo_CC_1/w4/all",400,1,5))
-        monitor.process_Message(Command("control/building540/simple",30))
-        monitor.process_Message(Command("control/building540/direct",command))   
-        monitor.process_Message(Command("control/building540/shed",command)) 
-        monitor.process_Message(Command("control/building540/increment",command))     
+    #     """Updating Observers to update power consumption of each plug
+    #     """
+        
+    #     monitor.set_EMS_Controller(emscontroller)
+        
+    #     monitor.process_Message(Message("devices/building540/NIRE_WeMo_cc_1/w1/all",200,1,2))
+    #     monitor.process_Message(Message("devices/building540/NIRE_WeMo_cc_1/w2/all",20,1,2))
+    #     monitor.process_Message(Message("devices/building540/NIRE_WeMo_cc_1/w3/all",500,1,1))
+    #     monitor.process_Message(Message("devices/building540/NIRE_WeMo_cc_1/w4/all",400,1,5))
+    #     monitor.process_Message(Command("control/building540/simple",30))
+    #     monitor.process_Message(Command("control/building540/direct",command))   
+    #     monitor.process_Message(Command("control/building540/shed",command)) 
+    #     monitor.process_Message(Command("control/building540/increment",command))     
     
     
-        sorted_smart_plugs_pr = sorted(
-        smart_plugs.values(),
-        key=lambda plug: (plug._priority),reverse=True
-        )
+    #     sorted_smart_plugs_pr = sorted(
+    #     smart_plugs.values(),
+    #     key=lambda plug: (plug._priority),reverse=True
+    #     )
         
-        sorted_smart_plugs_p = sorted(
-        smart_plugs.values(),
-        key=lambda plug: (plug._power_consumptiom),reverse=True
-        )
-    # Output the sorted list
-        for plug in sorted_smart_plugs_pr:
-            print(plug._priority)
+    #     sorted_smart_plugs_p = sorted(
+    #     smart_plugs.values(),
+    #     key=lambda plug: (plug._power_consumptiom),reverse=True
+    #     )
+    # # Output the sorted list
+    #     for plug in sorted_smart_plugs_pr:
+    #         print(plug._priority)
         
-    # Output the sorted list
-        for plug in sorted_smart_plugs_p:
-            print(plug._power_consumptiom)
+    # # Output the sorted list
+    #     for plug in sorted_smart_plugs_p:
+    #         print(plug._power_consumptiom)
             
         
         #emscontroller.execute_Strategy(1)
