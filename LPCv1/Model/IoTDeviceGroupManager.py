@@ -46,7 +46,7 @@ class IoTDeviceGroupManager(IoTFacadeManager):
         else:
             self._groups.remove(group)
         
-    def execute_Strategy(self,message:any)->None:
+    def execute_Strategy(self)->None:
         
         if not self._group_control_stratagey:
             logger.warning(f"The group stratagies are empty")

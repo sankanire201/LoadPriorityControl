@@ -25,7 +25,7 @@ class IoTFacadeManager(ABC):
         pass
     
     @abstractmethod
-    def execute_Strategy(self,message:any)->None:
+    def execute_Strategy(self)->None:
         pass 
     
     @abstractmethod
