@@ -37,6 +37,7 @@ class SmartPlug(Observer,IoTDevice):
         self._message= IoTMessage(device_id=id,message_type=None,payload=['command',None],timestamp=datetime.now())
         self._observerid=id
         self._max_power_rating=0
+        self._power_multiply_factor=1
         
     def turn_On(self) -> None:
         self._message.message_type='command'
@@ -57,7 +58,7 @@ class SmartPlug(Observer,IoTDevice):
         return self._power_consumption
     
     def set_Power_Consumption(self, power: int) -> None:
-        self._power_consumption = power
+        self._power_consumption = power*self._power_multiply_factor
     
     def get_Device_Id(self) -> int:
         return self._id
@@ -79,7 +80,7 @@ class SmartPlug(Observer,IoTDevice):
         self._status=status
         if  self._power_consumption > self._max_power_rating:
             self._max_power_rating= self._power_consumption
-        logger.info(f"updating the smart plug{ self._id}: power {self._power_consumption} : priority { self._priority} : status {self._status}")
+        logger.info(f"updating the smart plug{ self._id}: power {self._power_consumption} : priority { self._priority} : status {self._status}: powr_multiply_factor {self._power_multiply_factor}")
         
     def _check_Health(self)-> None:
         pass
