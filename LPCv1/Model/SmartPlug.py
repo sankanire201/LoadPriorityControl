@@ -46,7 +46,6 @@ class SmartPlug(Observer,IoTDevice):
         self.publish()
         self._last_command=self._message
         
-    
     def turn_Off(self) -> None:
         self._message.message_type='command'
         self._message.payload={'cmd':0}

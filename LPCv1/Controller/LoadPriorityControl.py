@@ -20,28 +20,27 @@ class LoadPriorityControl(ControlStrategy):
         return  sorted_groups
         
     def execute(self, group: IoTDeviceGroup, cmd: any) -> None:
-       # logger.info(f'Running Load Priority controller on the group {id(group)} with the power consumption of the group {group.get_Facade_Consumption()}')
-       # for device_id in group._devices: logger.info(f"the device id {device_id} has the priority: {group._devices[device_id]._priority}")
         total_consumption = sum(group.get_Facade_Consumption().values())
         logger.info(f">>>>>>>>>>>>>>>>>>>>>>>>>>>> total consumption {total_consumption}, { self._group_by_Priorities(group)} . >>>>>>>>>>>>>>>>>>>>>>> {cmd}")
         decoded_cmd=cmd[1]
         ## Shedding control section 
         if total_consumption > decoded_cmd:
-             print("Threshold exceeded. Turning off devices...")
+             logger.info("Threshold exceeded. Turning off devices...")
              priority_groups=self._group_by_Priorities(group,False)
              for priority in priority_groups.keys():
-                for device in priority_groups[priority]:
-                    if total_consumption > decoded_cmd :
+                for device in priority_groups[priority] :
+                    if total_consumption > decoded_cmd and device._power_consumption>0:
                         device.turn_Off()
                         device._last_command=0
                         sleep(1)
                         logger.info(f"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Turning off device {device._id} with priority {priority}, and total  consumption {total_consumption}")
                         total_consumption -= device._power_consumption       
                     else:
-                        break              
+                        break
+                                  
         ## Incremental control section 
         elif total_consumption < decoded_cmd-100:
-             print("Below threshold. Turning on devices...")
+             logger.info("Below threshold. Turning on devices ........ >>>>>>>>>>>>>>>>>>>>>>>>")
              priority_groups=self._group_by_Priorities(group,True)
              max_rating=sum(group. get_Facade_Max_rating().values())
              for priority in priority_groups.keys():

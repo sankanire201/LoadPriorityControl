@@ -53,6 +53,20 @@ interface Publish {
     +publish(message :dict) :bool
 }
 
+interface FacadeRepository{
+    +add_Facade(facade :IoTDeviceGroup)
+    +get_Facade(facade :IoTDeviceGroup)
+    +update_Facade(facade :IoTDeviceGroup)
+    +remove_facade(facade :IoTDeviceGroup)
+}
+
+class GroupRepository{
+    +add_Facade(facade :IoTDeviceGroup)
+    +get_Facade(facade :IoTDeviceGroup)
+    +update_Facade(facade :IoTDeviceGroup)
+    +remove_facade(facade :IoTDeviceGroup)
+}
+
 
 class: IoTDeviceGroupManager {
         -groups:list
@@ -151,6 +165,10 @@ class IoTMessage{
     priority: Optional[int]
 }
 
+class class SmartPlugDataService{
+    +create_and_store_smart_plug_json(group: IoTDeviceGroup )
+}
+
 ' Relationships
 SimpleControl -|> ControlStrategy
 DirectControl -|> ControlStrategy
@@ -171,5 +189,7 @@ SimpleControl *- IoTDeviceGroup
 DeviceMonitor *- Observer
 IoTDeviceGroupManager -|> IoTFacadeManager
 IoTDeviceGroupManager *- IoTDeviceGroup
+GroupRepository -|> FacadeRepository
+SmartPlugDataService *- GroupRepository
 
 @enduml
