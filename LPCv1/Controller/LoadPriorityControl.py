@@ -29,27 +29,40 @@ class LoadPriorityControl(ControlStrategy):
              priority_groups=self._group_by_Priorities(group,False)
              for priority in priority_groups.keys():
                 for device in priority_groups[priority] :
-                    if total_consumption > decoded_cmd and device._power_consumption>0:
+                    logger.info(f"Threshold exceeded. Turning off devices...{device._power_consumption}.. ID {device._id}")
+                    if total_consumption > decoded_cmd and device._status !=11:
                         device.turn_Off()
                         device._last_command=0
+                        device._flagged=False
+                        if device._last_command==0:
+                                device._control_attempts+=1
                         sleep(1)
                         logger.info(f"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Turning off device {device._id} with priority {priority}, and total  consumption {total_consumption}")
                         total_consumption -= device._power_consumption       
+                    elif device._status ==11:
+                        device._flagged=True
                     else:
                         break
                                   
         ## Incremental control section 
-        elif total_consumption < decoded_cmd-100:
-             logger.info("Below threshold. Turning on devices ........ >>>>>>>>>>>>>>>>>>>>>>>>")
+        elif total_consumption < decoded_cmd:
+
              priority_groups=self._group_by_Priorities(group,True)
              max_rating=sum(group. get_Facade_Max_rating().values())
              for priority in priority_groups.keys():
                  for device in priority_groups[priority]:
                      total_consumption += device._max_power_rating
-                     if total_consumption < decoded_cmd and device._last_command==0:
+                     logger.info(f"Below threshold. Turning on devices ........{device._id} , status {device._status}, last command {device._last_command}, total consumption {total_consumption} >>>>>>>>>>>>>>>>>>>>>>>>")
+                     if (total_consumption < decoded_cmd and device._last_command==0) and device._status !=11:
                          device.turn_On()
                          device._last_command=1
+                         device._flagged=True
                          sleep(1)
                          logger.info(f"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Turning on device {device._id} with priority {priority}, and total  consumption {total_consumption}")
+                     elif  device._last_command==1:
+                         total_consumption -= device._max_power_rating
+                     elif  device._status ==11:
+                         device._flagged=True
+                         total_consumption -= device._max_power_rating                         
                      else:
                          break

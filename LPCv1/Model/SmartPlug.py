@@ -38,6 +38,7 @@ class SmartPlug(Observer,IoTDevice):
         self._observerid=id
         self._max_power_rating=0
         self._power_multiply_factor=1
+        self._control_attempts=0
         
     def turn_On(self) -> None:
         self._message.message_type='command'

@@ -17,7 +17,6 @@ class SmartPlugDataService:
             parts = key.split('/')
             # Extract parts
             first_part, second_part = parts[0], parts[1]
-            print(first_part,second_part)
             device = group._devices[key]
 
             # Create nested dictionary structure
