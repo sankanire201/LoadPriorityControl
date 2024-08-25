@@ -24,7 +24,8 @@ class SmartPlugDataService:
                 'power': device._power_consumption,
                 'status': device._status,
                 'priority': device._priority,
-                'command' : device._last_command
+                'command' : device._last_command,
+                'maxpower' : device._max_power_rating
             }
             smart_plug_data['Control']=self._control_commands
         self._repository.update_Facade(smart_plug_data)
