@@ -7,19 +7,19 @@ conn = sqlite3.connect('./FacadeAgent/Device_configure_database.sqlite')
 cursor = conn.cursor()
 
 # Function to insert a new device into the devices table
-def insert_device(device_id, max_power_rating, controller_id=None,building_id=None, priority=0):
+def insert_device(device_id, max_power_rating, controller_id=None,building_id=None, priority=0,mutlipy_factor=1):
     try:
         cursor.execute('''
-            INSERT INTO devices (device_id, max_power_rating, controller_id,building_id,priority)
-            VALUES (?, ?, ?, ?, ?)
-        ''', (device_id, max_power_rating, controller_id,building_id,priority))
+            INSERT INTO devices (device_id, max_power_rating, controller_id,building_id,priority,power_multiply_factor)
+            VALUES (?, ?, ?, ?, ?, ?)
+        ''', (device_id, max_power_rating, controller_id,building_id,priority,mutlipy_factor))
         conn.commit()
         print(f"Device {device_id} inserted successfully.")
     except sqlite3.IntegrityError:
         print(f"Error: Device with ID {device_id} already exists.")
 
 # Function to update an existing device in the devices table
-def update_device(device_id, max_power_rating=None, controller_id=None,building_id=None,priority=0):
+def update_device(device_id, max_power_rating=None, controller_id=None,building_id=None,priority=0,mutlipy_factor=1):
     # Build the SQL update query dynamically based on the provided fields
     update_query = "UPDATE devices SET "
     update_fields = []
@@ -39,6 +39,11 @@ def update_device(device_id, max_power_rating=None, controller_id=None,building_
     if priority is not None:
         update_fields.append("priority = ?")
         update_values.append(priority)
+        
+    if mutlipy_factor is not None:
+        update_fields.append("power_multiply_factor = ?")
+        update_values.append(mutlipy_factor)
+    
     if not update_fields:
         print(f"No fields provided for update for device {device_id}.")
         return
@@ -52,21 +57,21 @@ def update_device(device_id, max_power_rating=None, controller_id=None,building_
     print(f"Device {device_id} updated successfully.")
 
 # Example usage:
-p=[1,2,1,1,3,2,2,2,1,1,3,1,1,1]
-for i in range(0,10):
-    insert_device('building540/NIRE_WeMo_cc_1/w'+str(i+1), 150.0, 'NIRE_WeMo_cc_1','building540',p[i])
+p=[1,2,1,1,3,2,2,2,1,1,3,1,1,1,3,3,3,2,2,1,1,3,1]
+for i in range(0,15):
+    insert_device('building540/NIRE_WeMo_cc_1/w'+str(i+1), 5.0, 'NIRE_WeMo_cc_1','building540',p[i],0.001)
 
 
-for j in range(0,12):
+for j in range(0,11):
     print(j)
-    insert_device('building540/NIRE_WeMo_cc_4/w'+str(j+1), 150.0, 'NIRE_WeMo_cc_4','building540',p[j])
+    insert_device('building540/NIRE_WeMo_cc_4/w'+str(j+1), 5.0, 'NIRE_WeMo_cc_4','building540',p[j],0.001)
     
-insert_device('building540/NIRE_ALPHA_cc_1/w2', 150.0, 'NIRE_ALPHA_cc_1','building540',1)
-insert_device('building540/NIRE_ALPHA_cc_1/w3', 150.0, 'NIRE_ALPHA_cc_1','building540',1)
-insert_device('building540/NIRE_ALPHA_cc_1/w4', 150.0, 'NIRE_ALPHA_cc_1','building540',1)
-insert_device('building540/NIRE_ALPHA_cc_1/w6', 150.0, 'NIRE_ALPHA_cc_1','building540',2)
-insert_device('building540/NIRE_ALPHA_cc_1/w17', 150.0, 'NIRE_ALPHA_cc_1','building540',3)
-insert_device('building540/NIRE_ALPHA_cc_1/w19', 150.0, 'NIRE_ALPHA_cc_1','building540',3)
+insert_device('building540/NIRE_ALPHA_cc_1/w2', 5.0, 'NIRE_ALPHA_cc_1','building540',1)
+insert_device('building540/NIRE_ALPHA_cc_1/w3', 5.0, 'NIRE_ALPHA_cc_1','building540',1)
+insert_device('building540/NIRE_ALPHA_cc_1/w4', 5.0, 'NIRE_ALPHA_cc_1','building540',1)
+insert_device('building540/NIRE_ALPHA_cc_1/w6', 5.0, 'NIRE_ALPHA_cc_1','building540',2)
+insert_device('building540/NIRE_ALPHA_cc_1/w17', 5.0, 'NIRE_ALPHA_cc_1','building540',3)
+insert_device('building540/NIRE_ALPHA_cc_1/w19', 5.0, 'NIRE_ALPHA_cc_1','building540',3)
 
 
 # update_device('w1', max_power_rating=175.0)

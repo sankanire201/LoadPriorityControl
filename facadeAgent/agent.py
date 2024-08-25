@@ -19,8 +19,11 @@ from Controller.DeviceMonitor import DeviceMonitor
 from Controller.DirectControl import DirectControl
 from Controller.SheddingControl import SheddingControl
 from Controller.IncrementalControl import IncrementalControl
+from Controller.LoadPriorityControl import LoadPriorityControl
 from Controller.EMSControl import EMSControl
-
+from Model.IoTDeviceGroupManager import IoTDeviceGroupManager
+from Model.SmartPlugDataService  import SmartPlugDataService
+from Model.GroupRepository import GroupRepository
 _log = logging.getLogger(__name__)
 utils.setup_logging()
 conn = sqlite3.connect('/home/sanka/NIRE_EMS/volttron/FacadeAgent/Device_configure_database.sqlite')
@@ -62,6 +65,8 @@ class Facadeagent(Agent):
 
         self.setting1 = setting1
         self.setting2 = setting2
+        self.repository = GroupRepository(self.vip,self.core.identity)
+        self.smart_Plug_Data_service= SmartPlugDataService(self.repository)
 
         self.default_config = {"setting1": setting1,
                                "setting2": setting2}
@@ -70,44 +75,43 @@ class Facadeagent(Agent):
         self._conn = sqlite3.connect('/home/sanka/NIRE_EMS/volttron/FacadeAgent/Device_configure_database.sqlite')
         self._cursor = self._conn.cursor()
         self._cursor.execute("SELECT * FROM devices")
+        self._group_mode_selector=0 # 0: run controller on the entire facade  1: run controllers on each priority groups
         rows = self._cursor.fetchall()  
         for row in rows:
             print(row[0])
         self._cursor.close()
         self._conn.close()
         self._command ={'building540/NIRE_WeMo_CC_1/w1':1,'building540/NIRE_WeMo_CC_1/w1':0,'building540/NIRE_WeMo_CC_1/w1':1,'building540/NIRE_WeMo_CC_1/w1':0}
+        
+        self._groupManager = IoTDeviceGroupManager()
+
         self._group = IoTDeviceGroup() # Group Facade
         self._monitor = DeviceMonitor() # Monitor for smart plug update
-        self._controlsimple =  SimpleControlStrategy()
-        self._controldirect = DirectControl()
-        self._controlshed = SheddingControl()
-        self._controlincrement = IncrementalControl()
         self._emscontroller = EMSControl()
-        self._emscontroller.add_Controller(self._controlsimple)
+        self._emscontroller.set_Controller(LoadPriorityControl(),{'1':3000})
         self._emscontroller.set_Group(self._group)
-        self._emscontroller.add_Controller(self._controldirect)
-        self._emscontroller.add_Controller(self._controlincrement)
-        self._emscontroller.add_Controller(self._controlshed)
         
         """Assign smart Plugs to the Group Facade
         """    
         self._smart_plugs={}
         for row in rows:
             plug=SmartPlug(row[0],self.vip)
+            plug._max_power_rating=row[1]
+            plug._power_multiply_factor=row[5]
             self._group.add_Device(plug)
             self._monitor.register_Observer(plug)
             self._smart_plugs[row]=plug
             
         """Updating Observers to update power consumption of each plug
         """
-        
-        self._monitor.set_EMS_Controller(self._emscontroller)
-        
+        self._groupManager.add_Group( self._group)
+        self._groupManager.group_By_Priority()
+        self._monitor.set_EMS_Controller(self._groupManager)
         ##
-        
-
         # Set a default configuration to ensure that self.configure is called immediately to setup
         # the agent.
+        self.core.periodic(120,self.dowork)
+        self.core.periodic(40,self.publish)
         self.vip.config.set_default("config", self.default_config)
         # Hook self.configure up to changes to the configuration file "config".
         self.vip.config.subscribe(self.configure, actions=["NEW", "UPDATE"], pattern="config")
@@ -154,6 +158,15 @@ class Facadeagent(Agent):
         Callback triggered by the subscription setup using the topic from the agent's config file
         """
         self._monitor.process_Message({'topic':topic, 'message':message})
+    def dowork(self):
+        if self._group_mode_selector==1:
+            self._groupManager.execute_Strategy()
+        elif self._group_mode_selector==0:
+            self._emscontroller.execute_Strategy()
+        
+    def publish(self):
+        self.smart_Plug_Data_service.create_and_store_smart_plug_json(self._group)
+        
         
     @Core.receiver("onstart")
     def onstart(self, sender, **kwargs):
@@ -187,6 +200,45 @@ class Facadeagent(Agent):
         May be called from another agent via self.core.rpc.call
         """
         return self.setting1 + arg1 - arg2
+    
+    @RPC.export
+    def get_Facades_Consumption(self,sender)->dict:
+        return self._group.get_Facade_Consumption()
+    
+    @RPC.export
+    def execute_Control_by_Priority_Groups(self,cmd:dict,sender)->None:
+        """
+        cmd : power consumption threshold and the control stratgey for for each priority group. ex: {'1':('simplecontrol',300),'2':('directcontrol',400)} 
+        Thsi Method sorts the groups pased on priorities and create new sets of groups for differernt priorities
+        Then it asssign the control stratagy for the each group
+        """
+        self.smart_Plug_Data_service.store_Control_Commands(cmd,str(sender))
+        self.smart_Plug_Data_service.create_and_store_smart_plug_json(self._group)
+        self._group_mode_selector=1
+        print("Recived Control Command>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>",self._groupManager.group_By_Priority())
+        priorityGroups=self._groupManager.group_By_Priority()
+        self._groupManager.clear_Groups_Stratgies()
+        for key in cmd.keys(): 
+            print("Recived Control Command>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>",priorityGroups[int(key)],cmd)
+            self._groupManager.set_Group_Stratagy(priorityGroups[int(key)],cmd[key])
+        self._groupManager.execute_Strategy()
+        
+        
+    @RPC.export
+    def execute_Control_all_Groups(self,cmd:dict,sender)->None:
+        self.smart_Plug_Data_service.store_Control_Commands(cmd,str(sender))
+        self.smart_Plug_Data_service.create_and_store_smart_plug_json(self._group)
+        self._group_mode_selector=0  
+        if cmd[0]=='direct':
+            self._emscontroller.set_Controller(DirectControl(),cmd)
+        elif cmd[0]=='increment':
+            self._emscontroller.set_Controller(IncrementalControl(),cmd)
+        elif cmd[0]=='shed':
+            self._emscontroller.set_Controller(SheddingControl(),cmd)
+        elif cmd[0]=='lpc':
+            self._emscontroller.set_Controller(LoadPriorityControl(),cmd)
+        self._emscontroller.execute_Strategy()        
+        
 
 
 def main():

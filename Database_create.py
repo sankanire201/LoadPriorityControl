@@ -32,7 +32,8 @@ CREATE TABLE IF NOT EXISTS devices (
     max_power_rating REAL NOT NULL,
     controller_id TEXT,
     building_id TEXT,
-    priority INT NOT NULL
+    priority INT NOT NULL,
+    power_multiply_factor FLOAT
 )
 ''')
 
