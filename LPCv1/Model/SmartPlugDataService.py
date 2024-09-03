@@ -25,9 +25,14 @@ class SmartPlugDataService:
                 'status': device._status,
                 'priority': device._priority,
                 'command' : device._last_command,
-                'maxpower' : device._max_power_rating
+                'maxpower' : device._max_power_rating,
+                'current' :device._current,
+                'voltage' :device._voltage,
+                'frequency' : device._frequency
             }
             smart_plug_data['Control']=self._control_commands
+            
+        logger.info(f"Loger Data >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> {smart_plug_data}")
         self._repository.update_Facade(smart_plug_data)
         
     def store_Control_Commands(self,command,agent)->None:

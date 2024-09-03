@@ -32,3 +32,7 @@ class IoTDevice(ABC):
     @abstractmethod
     def get_Priority(self) -> int:
         pass
+    
+    @abstractmethod
+    def set_parameters(self, para: int)->None:
+        pass

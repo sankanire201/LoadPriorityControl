@@ -16,6 +16,10 @@ class IoTFacade(ABC):
         pass
     
     @abstractmethod
+    def set_parameters(self_id: int)->None: # this is to set the additional parameters of a device
+        pass
+    
+    @abstractmethod
     def turn_Off(self,device_id: int)-> None:
         pass
     

@@ -87,6 +87,9 @@ class IoTDeviceGroup(IoTFacade):
         for key, group in groupby(sorted_smart_plugs, key=lambda plug: plug._priority):
             max_power_rating_by_priority[key] = sum(plug._max_power_rating for plug in group)
         return max_power_rating_by_priority
+    
+    def set_parameters(self_id: int)->None: # this is to set the additional parameters of a device
+        pass
         
 #if __name__ == "__main__":
         # plug1 =SmartPlug(1,1)
