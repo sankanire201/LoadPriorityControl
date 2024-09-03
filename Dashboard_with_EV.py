@@ -1,5 +1,5 @@
 from flask import Flask
-from dash import Dash, dcc, html,dash_table
+from dash import Dash, dcc, html, dash_table
 from dash.dependencies import Input, Output
 import mysql.connector
 import pandas as pd
@@ -118,6 +118,7 @@ def guess_missing_thresholds_spit(control_commands):
         priority_thresholds[priority].reverse()
     total_thresholds.reverse()
     return priority_thresholds, total_thresholds
+
 # Home Page layout
 home_layout = html.Div([
     html.H1("Home Page"),
@@ -127,18 +128,15 @@ home_layout = html.Div([
         interval=40*1000,  # Update every 40 seconds
         n_intervals=0
     ),
-        # EV Card at the top of the Home Page
+    # EV Card at the top of the Home Page
     dbc.Card(
         dbc.CardBody([
-            html.Img(src='/assets/ev_image.jpg', style={'width': '350px', 'height': '250px'}),  # Replace with your image path
+            html.Img(src='/assets/ev_image.png', style={'width': '100px', 'height': '100px'}),  # Replace with your image path
             html.H4("EV Power Consumption", className="card-title"),
-            html.Div(id='ev-power-display-home', style={'fontSize': 30, 'margin': '10px 0'}),
-            # Text label and Status light in a single Div
-            html.Div([
-                html.Span("Status: ", style={'fontSize': 30, 'margin-right': '10px'}),  # Text label in front of status light
-                html.Div(id='ev-status-light-home', style={'width': '20px', 'height': '20px', 'borderRadius': '50%'})  # Circle for status light
-            ], style={'display': 'flex', 'alignItems': 'center'})        ]),
-        style={'width': '28rem', 'margin': '20px'}
+            html.Div(id='ev-power-display-home', style={'fontSize': 20, 'margin': '10px 0'}),
+            html.Div(id='ev-status-light-home', style={'width': '20px', 'height': '20px', 'borderRadius': '50%'})  # Circle for status light
+        ]),
+        style={'width': '18rem', 'margin': '20px'}
     ),
     dcc.Dropdown(
         id='timezone-selector-home',
@@ -185,6 +183,10 @@ device_layout = html.Div([
     ),
     html.Div(id='status-table-device'),
     dcc.Graph(id='power-trend-line-graph-device'),
+    # Add three graphs for EV at the bottom
+    dcc.Graph(id='ev-power-graph'),
+    dcc.Graph(id='ev-voltage-graph'),
+    dcc.Graph(id='ev-current-graph'),
 ])
 
 # Home Page callback
@@ -201,7 +203,7 @@ def update_home_page(n, timezone):
     data_list = fetch_data_last_20_minutes()
 
     if not data_list:
-        return "No control command available.", {}, {}
+        return "No control command available.", {}, {}, "No Data", {'backgroundColor': 'grey'}
 
     # Convert timestamps based on selected timezone
     data_list = convert_timestamps(data_list, timezone)
@@ -240,8 +242,7 @@ def update_home_page(n, timezone):
 
     # Process data for total consumption and priority consumption
     priority_trend_list = []
-    latest_data = data_list[0]
-    Evlatest=[]
+
     for ts, data in data_list:
         for monitor, buildings in data.get('Monitor', {}).items():
             for building, devices in buildings.items():
@@ -256,11 +257,11 @@ def update_home_page(n, timezone):
             priority_trend_list.append({
                 'timestamp': ts,
                 'priority': metrics.get('priority'),
-                    'power' : round(metrics.get('power'),1)
+                'power': metrics.get('power')
             })
-    Evpower=latest_data[1].get('Monitor', {}).get('building540',{}).get('EV',{}).get('building540/EV/JuiceBox').get('power')
-        
+
     df_priority_trend = pd.DataFrame(priority_trend_list)
+
     # Create the priority trend line graph
     priority_trend_figure = {
         'data': [],
@@ -320,7 +321,7 @@ def update_home_page(n, timezone):
         'layout': {
             'title': "Total Power Consumption Over Last 20 Minutes",
             'xaxis': {'title': 'Time'},
-            'yaxis': {'title': 'Total Power Consumption (W)','range': [0, 11500]},
+            'yaxis': {'title': 'Total Power Consumption (W)','range': [0, 7000]},
             
         }
     }
@@ -334,19 +335,22 @@ def update_home_page(n, timezone):
             'name': f'Combined Threshold',
             'line': {'dash': 'dash', 'color': 'red'}
         })
-        
-            # Prepare EV power consumption display and status light
-    print(Evpower)
+    
+    # Prepare EV power consumption display and status light
     latest_ev_data = priority_trend_list[-1] if priority_trend_list else None
-    ev_power_display = f"EV Power: {Evpower} W" 
-    ev_status_light_style = {'backgroundColor': status_colors[11] if Evpower > 0 else 'green',
+    ev_power_display = f"EV Power: {latest_ev_data['power']} W" if latest_ev_data else "No Data"
+    ev_status_light_style = {'backgroundColor': status_colors[1] if latest_ev_data and latest_ev_data['power'] > 0 else 'red',
                              'width': '20px', 'height': '20px', 'borderRadius': '50%'}
 
     return thresholds_display, total_consumption_figure, priority_trend_figure, ev_power_display, ev_status_light_style
+
 # Device Page callback
 @app.callback(
     [Output('status-table-device', 'children'),
-     Output('power-trend-line-graph-device', 'figure')],
+     Output('power-trend-line-graph-device', 'figure'),
+     Output('ev-power-graph', 'figure'),
+     Output('ev-voltage-graph', 'figure'),
+     Output('ev-current-graph', 'figure')],
     [Input('interval-component-device', 'n_intervals'),
      Input('timezone-selector-device', 'value')]
 )
@@ -354,7 +358,7 @@ def update_device_page(n, timezone):
     data_list = fetch_data_last_20_minutes()
 
     if not data_list:
-        return {}, {}
+        return {}, {}, {}, {}, {}
 
     # Convert timestamps based on selected timezone
     data_list = convert_timestamps(data_list, timezone)
@@ -363,7 +367,11 @@ def update_device_page(n, timezone):
     latest_ts, latest_data = data_list[0]
     status_data_list = []
     power_trend_list = []
+    ev_power_list = []
+    ev_voltage_list = []
+    ev_current_list = []
 
+    # Extracting device and EV data
     for ts, data in data_list:
         for monitor, buildings in data.get('Monitor', {}).items():
             for building, devices in buildings.items():
@@ -373,100 +381,79 @@ def update_device_page(n, timezone):
                         'device': device,
                         'power': metrics.get('power')
                     })
+        
+        # Handle EV data
+        for ev_device, metrics in data.get('Monitor', {}).get('EV', {}).items():
+            ev_power_list.append({'timestamp': ts, 'power': metrics['power']})
+            ev_voltage_list.append({'timestamp': ts, 'voltage': metrics['voltage']})
+            ev_current_list.append({'timestamp': ts, 'current': metrics['current']})
+
+    # Prepare the status table
     for monitor, buildings in latest_data.get('Monitor', {}).items():
         for building, devices in buildings.items():
             for device, metrics in devices.items():
                 status_data_list.append({
                     'device': device,
                     'status': metrics.get('status'),
-                    'priority':metrics.get('priority'),
-                    'power' : round(metrics.get('power'),1),
-                    'maxpower': round(metrics.get('maxpower'),1)
+                    'priority': metrics.get('priority'),
+                    'power': round(metrics.get('power'), 1),
+                    'maxpower': round(metrics.get('maxpower'), 1)
                 })
     df_status = pd.DataFrame(status_data_list)
     df_power_trend = pd.DataFrame(power_trend_list)
-    print(df_status)
-   
-    # Define the style data conditional formatting for the table
-    style_data_conditional = [
-        {
-            'if': {
-                'filter_query': '{status} = 0',  # When status is 0 (Off)
-                'column_id': 'priority'
-            },
-            'backgroundColor': status_colors[0],
-            'color': 'black',
-        },
-        {
-            'if': {
-                'filter_query': '{status} = 1',  # When status is 1 (On)
-                'column_id': 'priority'
-            },
-            'backgroundColor': status_colors[1],
-            'color': 'black',
-        },
-        {
-            'if': {
-                'filter_query': '{status} = 8',  # When status is 8 (Standby)
-                'column_id': 'priority'
-            },
-            'backgroundColor': status_colors[8],
-            'color': 'black',
-        },
-         {
-            'if': {
-                 'filter_query': '{status} = 11',  # When status is 11 (Communication Error)
-                 'column_id': 'priority'
-             },
-             'backgroundColor': status_colors[11],
-             'color': 'black',
-         },
-        
-    
-        #            { 'if': {
-        #         'filter_query': '{priority} = 1',  # When status is 0 (Off)
-        #         'column_id': 'priority'
-        #     },
-        #     'color': status_colors[0]
-        # },
-                   
-        #            { 'if': {
-        #         'filter_query': '{priority} = 2',  # When status is 0 (Off)
-        #         'column_id': 'priority'
-        #     },
-        #     'color': status_colors[13]
-        # },
-                   
-        #            { 'if': {
-        #         'filter_query': '{priority} = 3',  # When status is 0 (Off)
-        #         'column_id': 'priority'
-        #     },
-        #     'color': status_colors[14]
-        # }
-    
-    
-    ]
 
     # Create the status table
     status_table = dash_table.DataTable(
-        columns=[{'name': 'Device', 'id': 'device'},{'name': 'Priority', 'id': 'priority'},
-                 {'name': 'Status', 'id': 'status'},{'name': 'Power (W)', 'id': 'power'},{'name': 'Max Power (W)', 'id': 'maxpower'}],
+        columns=[{'name': 'Device', 'id': 'device'}, {'name': 'Priority', 'id': 'priority'},
+                 {'name': 'Status', 'id': 'status'}, {'name': 'Power (W)', 'id': 'power'}, {'name': 'Max Power (W)', 'id': 'maxpower'}],
         data=df_status.to_dict('records'),
-        style_data_conditional=style_data_conditional,
+        style_data_conditional=[
+            {
+                'if': {
+                    'filter_query': '{status} = 0',  # When status is 0 (Off)
+                    'column_id': 'priority'
+                },
+                'backgroundColor': status_colors[0],
+                'color': 'black',
+            },
+            {
+                'if': {
+                    'filter_query': '{status} = 1',  # When status is 1 (On)
+                    'column_id': 'priority'
+                },
+                'backgroundColor': status_colors[1],
+                'color': 'black',
+            },
+            {
+                'if': {
+                    'filter_query': '{status} = 8',  # When status is 8 (Standby)
+                    'column_id': 'priority'
+                },
+                'backgroundColor': status_colors[8],
+                'color': 'black',
+            },
+            {
+                'if': {
+                    'filter_query': '{status} = 11',  # When status is 11 (Communication Error)
+                    'column_id': 'priority'
+                },
+                'backgroundColor': status_colors[11],
+                'color': 'black',
+            },
+        ],
         style_cell={
-                'font_family': 'Source Code Pro',
-                'font_size': '20px',
-                'text_align': 'center',
-                'padding': '5px'
+            'font_family': 'Source Code Pro',
+            'font_size': '20px',
+            'text_align': 'center',
+            'padding': '5px'
         },
         style_header={
             'backgroundColor': 'lightblue',
             'fontWeight': 'bold'
         }
-
     )
 
-    # Create the power trend line graph, with a line for each device
+    # Create the power trend line graph for devices
     power_trend_figure = {
         'data': [],
         'layout': {
@@ -485,7 +472,33 @@ def update_device_page(n, timezone):
             'name': device
         })
 
-    return status_table, power_trend_figure
+    # Create graphs for EV power, voltage, and current
+    ev_power_df = pd.DataFrame(ev_power_list)
+    ev_voltage_df = pd.DataFrame(ev_voltage_list)
+    ev_current_df = pd.DataFrame(ev_current_list)
+
+    ev_power_figure = {
+        'data': [
+            {'x': ev_power_df['timestamp'], 'y': ev_power_df['power'], 'mode': 'lines', 'name': 'EV Power Consumption'}
+        ],
+        'layout': {'title': 'EV Power Consumption Over Time', 'xaxis': {'title': 'Time'}, 'yaxis': {'title': 'Power (W)'}}
+    }
+
+    ev_voltage_figure = {
+        'data': [
+            {'x': ev_voltage_df['timestamp'], 'y': ev_voltage_df['voltage'], 'mode': 'lines', 'name': 'EV Voltage'}
+        ],
+        'layout': {'title': 'EV Voltage Over Time', 'xaxis': {'title': 'Time'}, 'yaxis': {'title': 'Voltage (V)'}}
+    }
+
+    ev_current_figure = {
+        'data': [
+            {'x': ev_current_df['timestamp'], 'y': ev_current_df['current'], 'mode': 'lines', 'name': 'EV Current'}
+        ],
+        'layout': {'title': 'EV Current Over Time', 'xaxis': {'title': 'Time'}, 'yaxis': {'title': 'Current (A)'}}
+    }
+
+    return status_table, power_trend_figure, ev_power_figure, ev_voltage_figure, ev_current_figure
 
 # Update page layout based on URL
 @app.callback(Output('page-content', 'children'),

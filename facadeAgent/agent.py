@@ -24,6 +24,9 @@ from Controller.EMSControl import EMSControl
 from Model.IoTDeviceGroupManager import IoTDeviceGroupManager
 from Model.SmartPlugDataService  import SmartPlugDataService
 from Model.GroupRepository import GroupRepository
+from Model.EVCharger import EVCharger
+from Controller.EvMonitor import EvMonitor
+
 _log = logging.getLogger(__name__)
 utils.setup_logging()
 conn = sqlite3.connect('/home/sanka/NIRE_EMS/volttron/FacadeAgent/Device_configure_database.sqlite')
@@ -87,6 +90,7 @@ class Facadeagent(Agent):
 
         self._group = IoTDeviceGroup() # Group Facade
         self._monitor = DeviceMonitor() # Monitor for smart plug update
+        self._eVmonitor = EvMonitor() # Monitor for EV charging station
         self._emscontroller = EMSControl()
         self._emscontroller.set_Controller(LoadPriorityControl(),{'1':3000})
         self._emscontroller.set_Group(self._group)
@@ -101,7 +105,9 @@ class Facadeagent(Agent):
             self._group.add_Device(plug)
             self._monitor.register_Observer(plug)
             self._smart_plugs[row]=plug
-            
+        self.ev_charger= EVCharger('building540/EV/JuiceBox',self.vip)
+        self._group.add_Device(self.ev_charger)
+        self._eVmonitor.register_Observer(self.ev_charger)
         """Updating Observers to update power consumption of each plug
         """
         self._groupManager.add_Group( self._group)
@@ -157,7 +163,12 @@ class Facadeagent(Agent):
         """
         Callback triggered by the subscription setup using the topic from the agent's config file
         """
-        self._monitor.process_Message({'topic':topic, 'message':message})
+
+        if "/EV/" in topic :
+            self._eVmonitor.process_Message({'topic':topic, 'message':message})
+        else:
+            self._monitor.process_Message({'topic':topic, 'message':message})
+
     def dowork(self):
         if self._group_mode_selector==1:
             self._groupManager.execute_Strategy()

@@ -65,6 +65,11 @@ for i in range(0,15):
 for j in range(0,11):
     print(j)
     insert_device('building540/NIRE_WeMo_cc_4/w'+str(j+1), 5.0, 'NIRE_WeMo_cc_4','building540',p[j],0.001)
+
+    
+for j in range(0,14):
+    print(j)
+    insert_device('building540/NIRE_ALPHA_cc_2/w'+str(j+1), 5.0, 'NIRE_ALPHA_cc_2','building540',p[j],0.001)
     
 insert_device('building540/NIRE_ALPHA_cc_1/w2', 5.0, 'NIRE_ALPHA_cc_1','building540',1)
 insert_device('building540/NIRE_ALPHA_cc_1/w3', 5.0, 'NIRE_ALPHA_cc_1','building540',1)
