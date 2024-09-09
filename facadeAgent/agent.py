@@ -20,6 +20,7 @@ from Controller.DirectControl import DirectControl
 from Controller.SheddingControl import SheddingControl
 from Controller.IncrementalControl import IncrementalControl
 from Controller.LoadPriorityControl import LoadPriorityControl
+from Controller.LoadPriorityControlEV import LoadPriorityControlEV
 from Controller.EMSControl import EMSControl
 from Model.IoTDeviceGroupManager import IoTDeviceGroupManager
 from Model.SmartPlugDataService  import SmartPlugDataService
@@ -92,7 +93,8 @@ class Facadeagent(Agent):
         self._monitor = DeviceMonitor() # Monitor for smart plug update
         self._eVmonitor = EvMonitor() # Monitor for EV charging station
         self._emscontroller = EMSControl()
-        self._emscontroller.set_Controller(LoadPriorityControl(),{'1':3000})
+        #self._emscontroller.set_Controller(LoadPriorityControl(),{'1':3000})
+        self._emscontroller.set_Controller(LoadPriorityControlEV(),{'1':3000})
         self._emscontroller.set_Group(self._group)
         
         """Assign smart Plugs to the Group Facade
@@ -247,7 +249,8 @@ class Facadeagent(Agent):
         elif cmd[0]=='shed':
             self._emscontroller.set_Controller(SheddingControl(),cmd)
         elif cmd[0]=='lpc':
-            self._emscontroller.set_Controller(LoadPriorityControl(),cmd)
+   #         self._emscontroller.set_Controller(LoadPriorityControl(),cmd)
+            self._emscontroller.set_Controller(LoadPriorityControlEV(),cmd)
         self._emscontroller.execute_Strategy()        
         
 

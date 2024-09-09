@@ -7,13 +7,18 @@ import json
 import pytz
 from datetime import datetime
 import dash_bootstrap_components as dbc
+import plotly.express as px
+
+# Sample data for the pie chart
+
+
 
 # Flask setup
 server = Flask(__name__)
 
 # Dash setup
-app = Dash(__name__, server=server, url_base_pathname='/', title="GNIRE-GLEAMM EMS Testing")
-
+app = Dash(__name__, server=server, url_base_pathname='/', title="GNIRE-GLEAMM EMS Testing",suppress_callback_exceptions=True)
+server = app.server 
 # Layout with navigation links
 app.layout = html.Div([
     dcc.Location(id='url', refresh=False),
@@ -39,8 +44,8 @@ def fetch_data_last_20_minutes():
         query = """
         SELECT ts, value_string FROM data 
         WHERE topic_id = 5 
-        AND ts >= NOW() - INTERVAL 1 HOUR
         ORDER BY ts DESC
+        LIMIT 300
         """
         cursor.execute(query)
         rows = cursor.fetchall()
@@ -118,28 +123,81 @@ def guess_missing_thresholds_spit(control_commands):
         priority_thresholds[priority].reverse()
     total_thresholds.reverse()
     return priority_thresholds, total_thresholds
+
 # Home Page layout
-home_layout = html.Div([
-    html.H1("Home Page"),
+home_layout = html.Div(  
+                       children=[
+    html.Img(src='/assets/background.jpg', style={
+            'width': '300px',  # Adjust the size as needed
+            'height': '100px',
+            'margin-bottom': '20px',
+            'display': 'block',  # Make the image a block element
+            'margin': 'auto'  # Center the image horizontally
+        }),  # Replace with your image path and adjust style as needed
+        html.H1("NIRE Load Priority Control Program" , style={'fontSize': 50, 'margin': '10px 0', 'text-align':'center', 'weight':'bold', 'style': 'italic','color':'#fc5603', 'text-shadow': '2px 2px 4px rgba(0, 0, 0, 0.5)' ,      'border-radius': '8px' ,    'border-bottom': '3px solid gray',  # Adds an underline with specific color and thickness
+                'padding-bottom': '10px',  # Adds some spacing between the text and underline
+      }),
     dcc.Link('Go to Device Page', href='/device-page'),
     dcc.Interval(
         id='interval-component-home',
         interval=40*1000,  # Update every 40 seconds
         n_intervals=0
     ),
+    
         # EV Card at the top of the Home Page
-    dbc.Card(
+ html.Div(
+            style={
+                'display': 'flex',
+                'justifyContent': 'center',  # Center the cards
+                'alignItems': 'flex-start',  # Align cards to the top
+                'gap': '40px'  # Space between cards
+            },
+    
+     children=[dbc.Card(
         dbc.CardBody([
-            html.Img(src='/assets/ev_image.jpg', style={'width': '350px', 'height': '250px'}),  # Replace with your image path
-            html.H4("EV Power Consumption", className="card-title"),
-            html.Div(id='ev-power-display-home', style={'fontSize': 30, 'margin': '10px 0'}),
-            # Text label and Status light in a single Div
-            html.Div([
-                html.Span("Status: ", style={'fontSize': 30, 'margin-right': '10px'}),  # Text label in front of status light
-                html.Div(id='ev-status-light-home', style={'width': '20px', 'height': '20px', 'borderRadius': '50%'})  # Circle for status light
-            ], style={'display': 'flex', 'alignItems': 'center'})        ]),
-        style={'width': '28rem', 'margin': '20px'}
+             html.H4("EV Status", className="card-title", style={'textAlign': 'center','fontSize': 35}),
+            html.Img(src='/assets/ev_image.jpg', style={'width': '350px', 'height': '250px', 'display': 'block',  # Make image a block element
+                                'margin': '0 auto'}),  
+            html.Div(id='ev-electrical', style={'fontSize': 35, 'margin': '5px 0', 'textAlign': 'center','whiteSpace': 'nowrap'}),
+            html.Div(id='ev-power-display-home', style={'fontSize': 35, 'weight':'bold','textAlign': 'center','margin': '10px 0'}),
+            html.Div(id='ev-energy-display-home', style={'fontSize': 35,'weight':'bold', 'textAlign': 'center','margin': '10px 0'}),
+            html.Div(id='ev-status-display-home', style={'fontSize': 30, 'weight':'bold','textAlign': 'center','margin': '10px 0'})
+            ]),
+        style={'width': '18rem', 'padding': '20px','backgroundColor': 'rgba(255, 255, 255, 0.8)',      'border': '1px solid lightgray',  # Light gray border for the boundary
+                        'box-shadow': '0 4px 8px rgba(0, 0, 0, 0.2)',  # Shadow for floating effect
+                        'border-radius': '10px',   'flex': '1',  # Allow this card to grow equally
+                        'min-width': '250px', 'border-color': '#fc5603', 'border-width':'3px'  # Rounded corners
+                        }
     ),
+                               dbc.Card(
+                    dbc.CardBody([
+                        html.H4("Grid Status", className="card-title", style={'textAlign': 'center','fontSize': 35}),
+                        html.Div("Online", id='grid-status-display', style={'fontSize': 38, 'textAlign': 'center', 'color': 'green','weight':'bold',})  # Example text and style
+                    ]),
+                    style={'width': '18rem', 'padding': '20px', 'backgroundColor': 'rgba(255, 255, 255, 0.8)',      'border': '1px solid lightgray',  # Light gray border for the boundary
+                        'box-shadow': '0 4px 8px rgba(0, 0, 0, 0.2)',  # Shadow for floating effect
+                        'border-radius': '10px' ,    'flex': '1',  # Allow this card to grow equally
+                        'min-width': '250px',  'border-color': '#fc5603', 'border-width':'3px' # Rounded corners
+                        }
+                ),
+                # Power Consumption Card
+                dbc.Card(
+                    dbc.CardBody([
+                        html.H4("Power Consumption By Groups", className="card-title", style={'textAlign': 'center','fontSize': 35}),
+                        html.Div(id='total-power', style={'fontSize': 27, 'margin': '5px 0', 'textAlign': 'center','whiteSpace': 'nowrap'}),
+                                                # Pie chart inside the card
+                        dcc.Graph(
+                            id='power-consumption-pie-chart'
+                        )
+                      #  html.Div("75%", id='power-consumption-display', style={'fontSize': 22, 'textAlign': 'center', 'color': 'blue'})  # Example text and style
+                    ]),
+                    style={'width': '18rem', 'padding': '20px', 'backgroundColor': 'rgba(255, 255, 255, 0.8)',      'border': '1px solid lightgray',  # Light gray border for the boundary
+                        'box-shadow': '0 4px 8px rgba(0, 0, 0, 0.2)',  # Shadow for floating effect
+                        'border-radius': '10px',    'flex': '1',  # Allow this card to grow equally
+                        'min-width': '250px', 'border-color': '#fc5603', 'border-width':'3px'  # Rounded corners
+                        }
+                )
+               ]),
     dcc.Dropdown(
         id='timezone-selector-home',
         options=[
@@ -150,20 +208,26 @@ home_layout = html.Div([
         style={'width': '50%', 'margin-bottom': '20px'}
     ),
     html.Div(id='control-command-display-home', style={'fontSize': 24, 'margin': '20px 0'}),
+     dcc.Loading(
+            id="loading-graphs",
+            type="default",
+            children=[
     dcc.Graph(id='total-consumption-line-graph-home'),
-    dcc.Graph(id='priority-trend-line-graph-home'),
+    dcc.Graph(id='priority-trend-line-graph-home'),])
 ])
 
 # Define status colors
 status_colors = {
     0: '#00e118',  # Off
     1: '#3165f8',  # On
+    2: '#3165f8',  # On
     8: '#c7cd00',  # Standby
     11: '#fd5d5d',  # Communication Error
     12:"green",
     13:"gold",
     14:"red"
 }
+
 
 # Device Page layout
 device_layout = html.Div([
@@ -193,7 +257,13 @@ device_layout = html.Div([
      Output('total-consumption-line-graph-home', 'figure'),
      Output('priority-trend-line-graph-home', 'figure'),
      Output('ev-power-display-home', 'children'),
-     Output('ev-status-light-home', 'style')],
+    Output('ev-energy-display-home', 'children'),
+    Output('ev-status-display-home', 'children'),
+    Output('ev-status-display-home', 'style'),
+    Output('ev-electrical', 'children'),
+    Output('power-consumption-pie-chart', 'figure'),
+    Output('total-power','children' )
+      ],
     [Input('interval-component-home', 'n_intervals'),
      Input('timezone-selector-home', 'value')]
 )
@@ -258,35 +328,73 @@ def update_home_page(n, timezone):
                 'priority': metrics.get('priority'),
                     'power' : round(metrics.get('power'),1)
             })
-    Evpower=latest_data[1].get('Monitor', {}).get('building540',{}).get('EV',{}).get('building540/EV/JuiceBox').get('power')
-        
+    tempdata=latest_data[1].get('Monitor', {}).get('building540',{}).get('EV',{}).get('building540/EV/JuiceBox')
+    Evpower=tempdata.get('power')
+    Evenergy=tempdata.get('energy')
+    Evstatus=tempdata.get('status')
+    Evtemerature=tempdata.get('temperature')
+    Evcurrent=tempdata.get('current')
+    Evvoltage=tempdata.get('voltage')
+    Evfrequency=tempdata.get('frequency')      
     df_priority_trend = pd.DataFrame(priority_trend_list)
     # Create the priority trend line graph
     priority_trend_figure = {
         'data': [],
         'layout': {
-            'title': "Total Power Consumption by Priority Over Last 20 Minutes",
-            'xaxis': {'title': 'Time'},
-            'yaxis': {'title': 'Total Power Consumption (W)'},
+             'title': {
+            'text': "Total Power Consumption By Priority",  # Chart title text
+            'font': {
+                'size': 28,  # Title font size
+                'color': 'black',  # Title font colo
+                'weight': 'bold'  # Title font weight
+            }
+        },
+            'title_font'
+            'xaxis': {'title': 'Time','titlefont': {'size': 24}, 'tickfont': {'size': 25,'weight': 'bold'}, },
+            'yaxis': {'title': 'Total Power Consumption (W)','titlefont': {'size': 24}, 'tickfont': {'size': 25,'weight': 'bold'}, },
+            'margin': {'l': 100, 'r': 40, 't': 60, 'b': 60} ,
+              'height': 500 ,
+               'legend': {
+                'font': {'size': 19, 'color': '#0e0180','weight': 'bold'}}
         }
     }
-
+    
     df_priority_grouped = df_priority_trend.groupby(['timestamp', 'priority']).sum().reset_index()
+    pidata = {
+    'Group': [],
+    'Consumption': []
+    }
     color_map = ['red', 'green', 'blue', 'orange', 'purple']  # Example colors for different thresholds
     color_idx = 0
     for priority in df_priority_grouped['priority'].unique():
         priority_data = df_priority_grouped[df_priority_grouped['priority'] == priority]
-        priority_trend_figure['data'].append({
-            'x': priority_data['timestamp'],
-            'y': priority_data['power'],
-            'mode': 'lines',
-            'name': f'Priority {priority}',
-            'line': {'color': color_map[color_idx], 'width':1.5},
-            'opacity': 0.7,  # Slightly transparent
-            
-        })
+        try:
+            if priority==0:
+                 priority_trend_figure['data'].append({
+                    'x': priority_data['timestamp'],
+                    'y': priority_data['power'],
+                    'mode': 'lines',
+                    'name': f'Differable Group',
+                    'line': {'color': '#e303fc', 'width':1.5},
+                    'opacity': 0.7,  # Slightly transparent
+                    
+                })               
+            else:
+                priority_trend_figure['data'].append({
+                    'x': priority_data['timestamp'],
+                    'y': priority_data['power'],
+                    'mode': 'lines',
+                    'name': f'Group {priority}',
+                    'line': {'color': color_map[color_idx], 'width':1.5},
+                    'opacity': 0.7,  # Slightly transparent
+                    
+                })
+        except:
+            pass
         color_idx += 1
-
+        pidata['Group'].append('Differable Group') if priority==0 else pidata['Group'].append('Group'+str(priority))
+        pidata['Consumption'].append(df_priority_grouped[df_priority_grouped['priority'] == priority]['power'].iloc[-1])
+    
     # Ensure that only one threshold per priority group is displayed
     unique_thresholds = {}
     for thresholds in guessed_thresholds_list:
@@ -318,14 +426,29 @@ def update_home_page(n, timezone):
             {'x': df_total_consumption['timestamp'], 'y': df_total_consumption['power'], 'mode': 'lines', 'name': 'Total Consumption'},
         ],
         'layout': {
-            'title': "Total Power Consumption Over Last 20 Minutes",
-            'xaxis': {'title': 'Time'},
-            'yaxis': {'title': 'Total Power Consumption (W)','range': [0, 11500]},
-            
+             'title': {
+            'text': "Total Power Consumption",  # Chart title text
+            'font': {
+                'size': 28,  # Title font size
+                'color': 'black',  # Title font colo
+                'weight': 'bold'  # Title font weight
+            }
+        },
+            'xaxis': {'title': 'Time', 'titlefont': {'size': 24}, 'tickfont': {'size': 25, 'weight': 'bold'}, },
+            'yaxis': {'title': 'Total Power Consumption (W)','range': [0, 11500],'titlefont': {'size': 24}, 'tickfont': {'size': 25,'weight': 'bold'}, },
+                        'margin': {'l': 100, 'r': 40, 't': 60, 'b': 60} ,
+                         'height': 500 ,
+                           'legend': {
+                'font': {'size': 19, 'color': '#0e0180','weight': 'bold'}}
         }
     }
+    Latest_power_value =df_total_consumption['power'].iloc[-1]
+    pidata['Consumption']= pidata['Consumption']*0 if Latest_power_value==0 else pidata['Consumption']/Latest_power_value*100
+    Latest_power_value_text= 'Total power Consumption: '+str(round(Latest_power_value,2))+'W'
+    #print(df_total_consumption['power'].iloc[-1],df_priority_grouped[df_priority_grouped['priority'] == 0]['power'].iloc[-1],df_priority_grouped[df_priority_grouped['priority'] == 0]['power'].iloc[-1],df_priority_grouped[df_priority_grouped['priority'] == 1]['power'].iloc[-1],df_priority_grouped[df_priority_grouped['priority'] == 2]['power'].iloc[-1],df_priority_grouped['priority'].unique())
 
     # Add combined threshold line to total consumption graph if applicable
+
     if total_thresholds_list:
         total_consumption_figure['data'].append({
             'x': df_total_consumption['timestamp'].unique(),
@@ -335,14 +458,49 @@ def update_home_page(n, timezone):
             'line': {'dash': 'dash', 'color': 'red'}
         })
         
-            # Prepare EV power consumption display and status light
-    print(Evpower)
-    latest_ev_data = priority_trend_list[-1] if priority_trend_list else None
-    ev_power_display = f"EV Power: {Evpower} W" 
-    ev_status_light_style = {'backgroundColor': status_colors[11] if Evpower > 0 else 'green',
-                             'width': '20px', 'height': '20px', 'borderRadius': '50%'}
+    # Create a pie chart using Plotly Express
+    fig1 = px.pie(
+    pidata, 
+    names='Group', 
+    values='Consumption', 
+    hole=0,  # Donut chart style with a hole in the middle
+    color_discrete_sequence=['green','blue', 'orange','#e303fc']  # Custom colors for each slice
+    )
+  
+    # Customize the pie chart font and text properties
+    fig1.update_traces(
+        textinfo='percent',  # Display percentage and label
+        textfont=dict(size=25, color='black', weight='bold'),
+        pull=[0.01, 0.01, 0.01, 0.01] 
+    )
+    
+    # Update layout for overall chart font and title
+    fig1.update_layout(
+        title_font_size=28,  # Increase title font size
+        font=dict(
+            family='Courier New, monospace',  # Global font family for the chart
+            size=18,  # Global font size for other elements like the legend
+            color='black'  # Global font color
+        ),
+        legend=dict(font=dict(size=24)) , # Increase legend font size
 
-    return thresholds_display, total_consumption_figure, priority_trend_figure, ev_power_display, ev_status_light_style
+    )
+        
+            # Prepare EV power consumption display and status light
+    # latest_ev_data = priority_trend_list[-1] if priority_trend_list else None
+    ev_power_display = f"EV Power: {round(Evpower/1000,2)} kW" 
+    ev_status_light_style = {'backgroundColor': status_colors[11] if Evpower > 0 else 'green',
+                              'width': '20px', 'height': '20px', 'borderRadius': '50%'}
+    if Evstatus ==0:
+        ev_status_display="Status: Available"
+    elif Evstatus ==1:
+        ev_status_display = "Status: Occupied (Charging stopped)"
+    else:
+        ev_status_display = "Status: Occupied (Charging) "
+        
+    
+
+    return thresholds_display, total_consumption_figure, priority_trend_figure, ev_power_display,f"EV Energy consumption: {round(Evenergy/1000,2)} kWh" ,ev_status_display, {'color': 'red','fontSize': 30, 'margin': '10px 0'} if  Evstatus ==2 else  {'color':'green','fontSize': 30, 'margin': '10px 0'},f'Voltage: {Evvoltage/10}V , Current: {Evcurrent/10}A , Frequency {Evfrequency/100}Hz ', fig1,Latest_power_value_text
 # Device Page callback
 @app.callback(
     [Output('status-table-device', 'children'),
@@ -385,8 +543,7 @@ def update_device_page(n, timezone):
                 })
     df_status = pd.DataFrame(status_data_list)
     df_power_trend = pd.DataFrame(power_trend_list)
-    print(df_status)
-   
+
     # Define the style data conditional formatting for the table
     style_data_conditional = [
         {
@@ -421,30 +578,13 @@ def update_device_page(n, timezone):
              'backgroundColor': status_colors[11],
              'color': 'black',
          },
-        
-    
-        #            { 'if': {
-        #         'filter_query': '{priority} = 1',  # When status is 0 (Off)
-        #         'column_id': 'priority'
-        #     },
-        #     'color': status_colors[0]
-        # },
-                   
-        #            { 'if': {
-        #         'filter_query': '{priority} = 2',  # When status is 0 (Off)
-        #         'column_id': 'priority'
-        #     },
-        #     'color': status_colors[13]
-        # },
-                   
-        #            { 'if': {
-        #         'filter_query': '{priority} = 3',  # When status is 0 (Off)
-        #         'column_id': 'priority'
-        #     },
-        #     'color': status_colors[14]
-        # }
-    
-    
+                     {'if': {
+                'filter_query': '{status} = 2',  # When status is 1 (On)
+                'column_id': 'priority'
+            },
+            'backgroundColor': status_colors[1],
+            'color': 'black',
+        },   
     ]
 
     # Create the status table
@@ -497,4 +637,6 @@ def display_page(pathname):
         return home_layout
 
 if __name__ == '__main__':
-    app.run_server(debug=True, host='0.0.0.0', port=8050)
+    #app.run_server(debug=False, host='0.0.0.0', port=8050) 
+    app.run_server(debug=False)
+    
