@@ -45,6 +45,11 @@ class EVCharger(IoTDevice,Observer):
         self._power_multiply_factor=1
         self._control_attempts=0
         self._deviceType='EV'
+        self._is_defferable= True
+        self._can_control_power=True
+        self._energy_consumption=0
+        self._temperature=0
+        self._power_consumption_before_last_command=0
         
     def turn_On(self) -> None:
         self._message.message_type='command'
@@ -68,6 +73,9 @@ class EVCharger(IoTDevice,Observer):
         self._message.message_type='command'
         self._message.payload={'cmd':para}
         self._message.priority=self._priority
+        self.publish()
+        self._last_command=self._message
+        logger.info(">>>>>>>>>>>>>>>>>>>>>> Changing Power of the EV")
     
     def set_Power_Consumption(self, power: int) -> None:
         self._power_consumption = power
@@ -84,7 +92,7 @@ class EVCharger(IoTDevice,Observer):
     def get_Priority(self) -> int:
         return super().get_Priority()
     
-    def update(self, current: int, frequency: int, priority: int, voltage: float, powercommand :int) -> None:
+    def update(self, current: int, frequency: int, priority: int, voltage: float, powercommand :int, energyconsumption: int, temperature: int, status: int) -> None:
 
         self.set_Power_Consumption(voltage*current/100)
         self._current=current
@@ -92,6 +100,9 @@ class EVCharger(IoTDevice,Observer):
         self._frequency=frequency
         self._currentcommand=powercommand
         self._priority=priority
+        self._energy_consumption=energyconsumption
+        self._status= status
+        self._temperature=temperature
         if  self._power_consumption > self._max_power_rating:
             self._max_power_rating= self._power_consumption
         #logger.info(f"This is charger info >>>>>>>>>>>>>>>>>>>>>>>>>:{current, frequency, priority, voltage, powercommand,voltage/10*current/10}")

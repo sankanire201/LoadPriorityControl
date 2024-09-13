@@ -39,7 +39,7 @@ class EvMonitor(ObserverSubject):
                 logger.error(f"Error in the Observers list: {e}")
     
     def notify_Observers(self) -> None:
-        self._observers[self._notificationObserverID].update(int(self._message['current']),int(self._message['frequency']),int(self._message['priority']),int(self._message['voltage']),int(self._message['Acmd']))    
+        self._observers[self._notificationObserverID].update(int(self._message['current']),int(self._message['frequency']),int(self._message['priority']),int(self._message['voltage']),int(self._message['Acmd']),int(self._message['energy']),int(self._message['temperature']),int(self._message['status']))    
     def set_EMS_Controller(self,emscontroller: EMSControl)->None:
         self._emscontroller = emscontroller
     

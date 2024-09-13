@@ -4,8 +4,10 @@ from Model.IoTDeviceGroup import IoTDeviceGroup
 from Controller.ControlStrategy import ControlStrategy
 import logging
 from itertools import groupby
-logger = logging.getLogger(__name__)
 from time import sleep
+
+logger = logging.getLogger(__name__)
+
 class LoadPriorityControl(ControlStrategy):
     def __init__(self) -> None:
         super().__init__()

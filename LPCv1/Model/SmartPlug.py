@@ -43,6 +43,10 @@ class SmartPlug(Observer,IoTDevice):
         self._power_multiply_factor=1
         self._control_attempts=0
         self._deviceType='plug'
+        self._is_defferable= False
+        self._can_control_power= False
+        self._energy_consumption=0
+        self._temperature=0
         
     def turn_On(self) -> None:
         self._message.message_type='command'

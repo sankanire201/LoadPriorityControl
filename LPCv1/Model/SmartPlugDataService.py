@@ -3,7 +3,7 @@ sys.path.append("/home/sanka/NIRE_EMS/volttron/LoadPriorityControl/LPCv1/")
 from Model.GroupRepository import GroupRepository
 from Model.IoTDeviceGroup import IoTDeviceGroup
 import logging
-
+import requests
 logger = logging.getLogger(__name__)
 
 class SmartPlugDataService:
@@ -28,9 +28,13 @@ class SmartPlugDataService:
                 'maxpower' : device._max_power_rating,
                 'current' :device._current,
                 'voltage' :device._voltage,
-                'frequency' : device._frequency
+                'frequency' : device._frequency,
+                 'energy': device._energy_consumption,
+                'temperature':device._temperature,
             }
             smart_plug_data['Control']=self._control_commands
+            url = "http://127.0.0.1:8880/api/lmpdata/"
+            smart_plug_data['LMP']= requests.get(url).json()['LMP']
             
         logger.info(f"Loger Data >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> {smart_plug_data}")
         self._repository.update_Facade(smart_plug_data)
