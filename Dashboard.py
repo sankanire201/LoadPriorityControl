@@ -5,11 +5,20 @@ import mysql.connector
 import pandas as pd
 import json
 import pytz
-from datetime import datetime
+from datetime import datetime,timedelta
 import dash_bootstrap_components as dbc
 import plotly.express as px
 
+
 # Sample data for the pie chart
+
+#### to RUN the APP
+
+### nohup gunicorn dash_app:server -w 4 -b 0.0.0.0:8050 > dash_app.log 2>&1 &
+#### kill the app
+####  ps aux | grep gunicorn  # Find the process ID (PID)
+#### kill <PID>  # Replace <PID> with the actual PID
+#### disown
 
 
 
@@ -41,12 +50,8 @@ def fetch_data_last_20_minutes():
     cursor = connection.cursor()
 
     try:
-        query = """
-        SELECT ts, value_string FROM data 
-        WHERE topic_id = 5 
-        ORDER BY ts DESC
-        LIMIT 300
-        """
+        query =""" SELECT ts, value_string FROM GLEAMM_NIRE.data  where topic_id=5 and  ts <= UTC_TIMESTAMP()   and ts >=date_sub( UTC_TIMESTAMP() , interval 3 hour) ORDER BY ts DESC """
+
         cursor.execute(query)
         rows = cursor.fetchall()
 
@@ -172,7 +177,11 @@ home_layout = html.Div(
                                dbc.Card(
                     dbc.CardBody([
                         html.H4("Grid Status", className="card-title", style={'textAlign': 'center','fontSize': 35}),
-                        html.Div("Online", id='grid-status-display', style={'fontSize': 38, 'textAlign': 'center', 'color': 'green','weight':'bold',})  # Example text and style
+                        html.Div("Online", id='grid-status-display', style={'fontSize': 38, 'textAlign': 'center', 'color': 'green','weight':'bold',}),  # Example text and style
+                        html.H4("Locational Marginal Pricing (LMP)",style={'textAlign': 'center','fontSize': 35}),
+                        html.Div(id='lmp', style={'fontSize': 38, 'margin': '5px 0', 'textAlign': 'center','whiteSpace': 'nowrap', 'weight':'bold' }),
+                        html.Div(id='total-instance-cost', style={'fontSize': 38, 'margin': '5px 0', 'textAlign': 'center','whiteSpace': 'nowrap'}),
+                        html.Div(id='total_cost_last_hour', style={'fontSize': 38, 'margin': '5px 0', 'textAlign': 'center','whiteSpace': 'nowrap', 'weight':'bold' })
                     ]),
                     style={'width': '18rem', 'padding': '20px', 'backgroundColor': 'rgba(255, 255, 255, 0.8)',      'border': '1px solid lightgray',  # Light gray border for the boundary
                         'box-shadow': '0 4px 8px rgba(0, 0, 0, 0.2)',  # Shadow for floating effect
@@ -184,7 +193,8 @@ home_layout = html.Div(
                 dbc.Card(
                     dbc.CardBody([
                         html.H4("Power Consumption By Groups", className="card-title", style={'textAlign': 'center','fontSize': 35}),
-                        html.Div(id='total-power', style={'fontSize': 27, 'margin': '5px 0', 'textAlign': 'center','whiteSpace': 'nowrap'}),
+                        html.Div(id='total-power', style={'fontSize': 34, 'margin': '5px 0', 'textAlign': 'center','whiteSpace': 'nowrap'}),
+                         html.Div(id='total-energy-consumption', style={'fontSize': 34, 'margin': '5px 0', 'textAlign': 'center','whiteSpace': 'nowrap'}),
                                                 # Pie chart inside the card
                         dcc.Graph(
                             id='power-consumption-pie-chart'
@@ -262,7 +272,11 @@ device_layout = html.Div([
     Output('ev-status-display-home', 'style'),
     Output('ev-electrical', 'children'),
     Output('power-consumption-pie-chart', 'figure'),
-    Output('total-power','children' )
+    Output('total-power','children' ),
+    Output('lmp','children' ),
+    Output('total-instance-cost','children' ),
+    Output('total_cost_last_hour','children' ),
+    Output('total-energy-consumption','children' )
       ],
     [Input('interval-component-home', 'n_intervals'),
      Input('timezone-selector-home', 'value')]
@@ -278,6 +292,10 @@ def update_home_page(n, timezone):
 
     # Extract control commands and guess missing thresholds
     control_commands = [data.get('Control', {}).get('Django', {}).get('cmd', None) for _, data in data_list]
+    LMP = data_list[0][1]['LMP']
+    one_hour_ago=data_list[0][0]-timedelta(hours=1)
+    filtered_tuples = [tup[1]['LMP'] for tup in data_list if tup[0] >= one_hour_ago]
+    LMP_average_for_last_hour=sum(filtered_tuples)/1000/len(filtered_tuples)
     guessed_commands = guess_missing_thresholds(control_commands)
 
     # Parse thresholds and prepare for display
@@ -443,8 +461,13 @@ def update_home_page(n, timezone):
         }
     }
     Latest_power_value =df_total_consumption['power'].iloc[-1]
+    last_hour_data = df_total_consumption[(df_total_consumption['timestamp'] > one_hour_ago) & (df_total_consumption['timestamp'] <= df_total_consumption['timestamp'].max())]
+    Last_hour_power_consumption=last_hour_data['power'].sum()/1000* 40 / 3600
+    Last_hour_usage_cost=LMP_average_for_last_hour*Last_hour_power_consumption
+    Last_hour_usage_cost_text= 'Hourly Cost: ' + str(round(Last_hour_usage_cost,4))+ ' $' 
+    print('Last Hour Cost of Usage ', Last_hour_usage_cost)
     pidata['Consumption']= pidata['Consumption']*0 if Latest_power_value==0 else pidata['Consumption']/Latest_power_value*100
-    Latest_power_value_text= 'Total power Consumption: '+str(round(Latest_power_value,2))+'W'
+    Latest_power_value_text= 'Total Power Consumption: '+str(round(Latest_power_value/1000,2))+' kW'
     #print(df_total_consumption['power'].iloc[-1],df_priority_grouped[df_priority_grouped['priority'] == 0]['power'].iloc[-1],df_priority_grouped[df_priority_grouped['priority'] == 0]['power'].iloc[-1],df_priority_grouped[df_priority_grouped['priority'] == 1]['power'].iloc[-1],df_priority_grouped[df_priority_grouped['priority'] == 2]['power'].iloc[-1],df_priority_grouped['priority'].unique())
 
     # Add combined threshold line to total consumption graph if applicable
@@ -499,8 +522,11 @@ def update_home_page(n, timezone):
         ev_status_display = "Status: Occupied (Charging) "
         
     
-
-    return thresholds_display, total_consumption_figure, priority_trend_figure, ev_power_display,f"EV Energy consumption: {round(Evenergy/1000,2)} kWh" ,ev_status_display, {'color': 'red','fontSize': 30, 'margin': '10px 0'} if  Evstatus ==2 else  {'color':'green','fontSize': 30, 'margin': '10px 0'},f'Voltage: {Evvoltage/10}V , Current: {Evcurrent/10}A , Frequency {Evfrequency/100}Hz ', fig1,Latest_power_value_text
+    instance_cost_text= 'Instantaneous Electricity Cost: '+ str(round(LMP/1000*Latest_power_value/1000*40/3600,5)) + ' $'
+    return [thresholds_display, total_consumption_figure, priority_trend_figure, ev_power_display,f"EV Energy Consumption: {round(Evenergy/1000,2)} kWh" ,ev_status_display, 
+            {'color': 'red','fontSize': 30, 'margin': '10px 0'} if  Evstatus ==2 else  {'color':'green','fontSize': 30, 'margin': '10px 0'},f'Voltage: {Evvoltage/10}V , Current: {Evcurrent/10}A , Frequency {Evfrequency/100}Hz ',
+            fig1,Latest_power_value_text, 'Unit Price: '+(str(round(LMP/1000,3))+' $/kWh'), instance_cost_text,Last_hour_usage_cost_text,
+            'Total Energy Consumption: '+ str(round(Last_hour_power_consumption,2))+' kWh']
 # Device Page callback
 @app.callback(
     [Output('status-table-device', 'children'),

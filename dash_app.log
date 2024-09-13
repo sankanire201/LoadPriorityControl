@@ -12860,3 +12860,301 @@ Traceback (most recent call last):
 SystemExit: 1
 [2024-09-09 03:01:55 +0000] [1088202] [INFO] Worker exiting (pid: 1088202)
 [2024-09-09 03:01:56 +0000] [1925151] [INFO] Booting worker with pid: 1925151
+[2024-09-09 16:07:55 +0000] [871191] [CRITICAL] WORKER TIMEOUT (pid:1925151)
+[2024-09-09 16:07:55 +0000] [1925151] [ERROR] Error handling request (no URI read)
+Traceback (most recent call last):
+  File "/home/sanka/NIRE_EMS/volttron/env/lib/python3.10/site-packages/gunicorn/workers/sync.py", line 133, in handle
+    req = next(parser)
+  File "/home/sanka/NIRE_EMS/volttron/env/lib/python3.10/site-packages/gunicorn/http/parser.py", line 41, in __next__
+    self.mesg = self.mesg_class(self.cfg, self.unreader, self.source_addr, self.req_count)
+  File "/home/sanka/NIRE_EMS/volttron/env/lib/python3.10/site-packages/gunicorn/http/message.py", line 259, in __init__
+    super().__init__(cfg, unreader, peer_addr)
+  File "/home/sanka/NIRE_EMS/volttron/env/lib/python3.10/site-packages/gunicorn/http/message.py", line 60, in __init__
+    unused = self.parse(self.unreader)
+  File "/home/sanka/NIRE_EMS/volttron/env/lib/python3.10/site-packages/gunicorn/http/message.py", line 271, in parse
+    self.get_data(unreader, buf, stop=True)
+  File "/home/sanka/NIRE_EMS/volttron/env/lib/python3.10/site-packages/gunicorn/http/message.py", line 262, in get_data
+    data = unreader.read()
+  File "/home/sanka/NIRE_EMS/volttron/env/lib/python3.10/site-packages/gunicorn/http/unreader.py", line 36, in read
+    d = self.chunk()
+  File "/home/sanka/NIRE_EMS/volttron/env/lib/python3.10/site-packages/gunicorn/http/unreader.py", line 63, in chunk
+    return self.sock.recv(self.mxchunk)
+  File "/home/sanka/NIRE_EMS/volttron/env/lib/python3.10/site-packages/gunicorn/workers/base.py", line 204, in handle_abort
+    sys.exit(1)
+SystemExit: 1
+[2024-09-09 16:07:55 +0000] [1925151] [INFO] Worker exiting (pid: 1925151)
+[2024-09-09 16:07:55 +0000] [2152726] [INFO] Booting worker with pid: 2152726
+[2024-09-11 03:08:35 +0000] [871191] [CRITICAL] WORKER TIMEOUT (pid:2152726)
+[2024-09-11 03:08:35 +0000] [2152726] [ERROR] Error handling request (no URI read)
+Traceback (most recent call last):
+  File "/home/sanka/NIRE_EMS/volttron/env/lib/python3.10/site-packages/gunicorn/workers/sync.py", line 133, in handle
+    req = next(parser)
+  File "/home/sanka/NIRE_EMS/volttron/env/lib/python3.10/site-packages/gunicorn/http/parser.py", line 41, in __next__
+    self.mesg = self.mesg_class(self.cfg, self.unreader, self.source_addr, self.req_count)
+  File "/home/sanka/NIRE_EMS/volttron/env/lib/python3.10/site-packages/gunicorn/http/message.py", line 259, in __init__
+    super().__init__(cfg, unreader, peer_addr)
+  File "/home/sanka/NIRE_EMS/volttron/env/lib/python3.10/site-packages/gunicorn/http/message.py", line 60, in __init__
+    unused = self.parse(self.unreader)
+  File "/home/sanka/NIRE_EMS/volttron/env/lib/python3.10/site-packages/gunicorn/http/message.py", line 271, in parse
+    self.get_data(unreader, buf, stop=True)
+  File "/home/sanka/NIRE_EMS/volttron/env/lib/python3.10/site-packages/gunicorn/http/message.py", line 262, in get_data
+    data = unreader.read()
+  File "/home/sanka/NIRE_EMS/volttron/env/lib/python3.10/site-packages/gunicorn/http/unreader.py", line 36, in read
+    d = self.chunk()
+  File "/home/sanka/NIRE_EMS/volttron/env/lib/python3.10/site-packages/gunicorn/http/unreader.py", line 63, in chunk
+    return self.sock.recv(self.mxchunk)
+  File "/home/sanka/NIRE_EMS/volttron/env/lib/python3.10/site-packages/gunicorn/workers/base.py", line 204, in handle_abort
+    sys.exit(1)
+SystemExit: 1
+[2024-09-11 03:08:35 +0000] [2152726] [INFO] Worker exiting (pid: 2152726)
+[2024-09-11 03:08:36 +0000] [2915625] [INFO] Booting worker with pid: 2915625
+[2024-09-11 16:03:24,370] ERROR in app: Exception on /_dash-update-component [POST]
+Traceback (most recent call last):
+  File "/home/sanka/NIRE_EMS/volttron/env/lib/python3.10/site-packages/mysql/connector/connection_cext.py", line 334, in _open_connection
+    self._cmysql.connect(**cnx_kwargs)
+_mysql_connector.MySQLInterfaceError: Can't connect to MySQL server on '192.168.10.52:3306' (111)
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/sanka/NIRE_EMS/volttron/env/lib/python3.10/site-packages/flask/app.py", line 1473, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/home/sanka/NIRE_EMS/volttron/env/lib/python3.10/site-packages/flask/app.py", line 882, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/home/sanka/NIRE_EMS/volttron/env/lib/python3.10/site-packages/flask/app.py", line 880, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/sanka/NIRE_EMS/volttron/env/lib/python3.10/site-packages/flask/app.py", line 865, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+  File "/home/sanka/NIRE_EMS/volttron/env/lib/python3.10/site-packages/dash/dash.py", line 1373, in dispatch
+    ctx.run(
+  File "/home/sanka/NIRE_EMS/volttron/env/lib/python3.10/site-packages/dash/_callback.py", line 465, in add_context
+    output_value = _invoke_callback(func, *func_args, **func_kwargs)
+  File "/home/sanka/NIRE_EMS/volttron/env/lib/python3.10/site-packages/dash/_callback.py", line 40, in _invoke_callback
+    return func(*args, **kwargs)  # %% callback invoked %%
+  File "/home/sanka/NIRE_EMS/volttron/FacadeAgent/Dashboard.py", line 271, in update_home_page
+    [Input('interval-component-home', 'n_intervals'),
+  File "/home/sanka/NIRE_EMS/volttron/FacadeAgent/Dashboard.py", line 40, in fetch_data_last_20_minutes
+    user='SANKA',
+  File "/home/sanka/NIRE_EMS/volttron/FacadeAgent/Dashboard.py", line 30, in get_db_connection
+    # Layout with navigation links
+  File "/home/sanka/NIRE_EMS/volttron/env/lib/python3.10/site-packages/mysql/connector/pooling.py", line 322, in connect
+    return CMySQLConnection(*args, **kwargs)
+  File "/home/sanka/NIRE_EMS/volttron/env/lib/python3.10/site-packages/mysql/connector/connection_cext.py", line 151, in __init__
+    self.connect(**kwargs)
+  File "/home/sanka/NIRE_EMS/volttron/env/lib/python3.10/site-packages/mysql/connector/abstracts.py", line 1399, in connect
+    self._open_connection()
+  File "/home/sanka/NIRE_EMS/volttron/env/lib/python3.10/site-packages/mysql/connector/connection_cext.py", line 339, in _open_connection
+    raise get_mysql_exception(
+mysql.connector.errors.DatabaseError: 2003 (HY000): Can't connect to MySQL server on '192.168.10.52:3306' (111)
+[2024-09-11 16:03:28,857] ERROR in app: Exception on /_dash-update-component [POST]
+Traceback (most recent call last):
+  File "/home/sanka/NIRE_EMS/volttron/env/lib/python3.10/site-packages/mysql/connector/connection_cext.py", line 334, in _open_connection
+    self._cmysql.connect(**cnx_kwargs)
+_mysql_connector.MySQLInterfaceError: Can't connect to MySQL server on '192.168.10.52:3306' (111)
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/sanka/NIRE_EMS/volttron/env/lib/python3.10/site-packages/flask/app.py", line 1473, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/home/sanka/NIRE_EMS/volttron/env/lib/python3.10/site-packages/flask/app.py", line 882, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/home/sanka/NIRE_EMS/volttron/env/lib/python3.10/site-packages/flask/app.py", line 880, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/sanka/NIRE_EMS/volttron/env/lib/python3.10/site-packages/flask/app.py", line 865, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+  File "/home/sanka/NIRE_EMS/volttron/env/lib/python3.10/site-packages/dash/dash.py", line 1373, in dispatch
+    ctx.run(
+  File "/home/sanka/NIRE_EMS/volttron/env/lib/python3.10/site-packages/dash/_callback.py", line 465, in add_context
+    output_value = _invoke_callback(func, *func_args, **func_kwargs)
+  File "/home/sanka/NIRE_EMS/volttron/env/lib/python3.10/site-packages/dash/_callback.py", line 40, in _invoke_callback
+    return func(*args, **kwargs)  # %% callback invoked %%
+  File "/home/sanka/NIRE_EMS/volttron/FacadeAgent/Dashboard.py", line 271, in update_home_page
+    [Input('interval-component-home', 'n_intervals'),
+  File "/home/sanka/NIRE_EMS/volttron/FacadeAgent/Dashboard.py", line 40, in fetch_data_last_20_minutes
+    user='SANKA',
+  File "/home/sanka/NIRE_EMS/volttron/FacadeAgent/Dashboard.py", line 30, in get_db_connection
+    # Layout with navigation links
+  File "/home/sanka/NIRE_EMS/volttron/env/lib/python3.10/site-packages/mysql/connector/pooling.py", line 322, in connect
+    return CMySQLConnection(*args, **kwargs)
+  File "/home/sanka/NIRE_EMS/volttron/env/lib/python3.10/site-packages/mysql/connector/connection_cext.py", line 151, in __init__
+    self.connect(**kwargs)
+  File "/home/sanka/NIRE_EMS/volttron/env/lib/python3.10/site-packages/mysql/connector/abstracts.py", line 1399, in connect
+    self._open_connection()
+  File "/home/sanka/NIRE_EMS/volttron/env/lib/python3.10/site-packages/mysql/connector/connection_cext.py", line 339, in _open_connection
+    raise get_mysql_exception(
+mysql.connector.errors.DatabaseError: 2003 (HY000): Can't connect to MySQL server on '192.168.10.52:3306' (111)
+[2024-09-11 16:03:52,364] ERROR in app: Exception on /_dash-update-component [POST]
+Traceback (most recent call last):
+  File "/home/sanka/NIRE_EMS/volttron/env/lib/python3.10/site-packages/mysql/connector/connection_cext.py", line 334, in _open_connection
+    self._cmysql.connect(**cnx_kwargs)
+_mysql_connector.MySQLInterfaceError: Can't connect to MySQL server on '192.168.10.52:3306' (111)
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/sanka/NIRE_EMS/volttron/env/lib/python3.10/site-packages/flask/app.py", line 1473, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/home/sanka/NIRE_EMS/volttron/env/lib/python3.10/site-packages/flask/app.py", line 882, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/home/sanka/NIRE_EMS/volttron/env/lib/python3.10/site-packages/flask/app.py", line 880, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/sanka/NIRE_EMS/volttron/env/lib/python3.10/site-packages/flask/app.py", line 865, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+  File "/home/sanka/NIRE_EMS/volttron/env/lib/python3.10/site-packages/dash/dash.py", line 1373, in dispatch
+    ctx.run(
+  File "/home/sanka/NIRE_EMS/volttron/env/lib/python3.10/site-packages/dash/_callback.py", line 465, in add_context
+    output_value = _invoke_callback(func, *func_args, **func_kwargs)
+  File "/home/sanka/NIRE_EMS/volttron/env/lib/python3.10/site-packages/dash/_callback.py", line 40, in _invoke_callback
+    return func(*args, **kwargs)  # %% callback invoked %%
+  File "/home/sanka/NIRE_EMS/volttron/FacadeAgent/Dashboard.py", line 271, in update_home_page
+    [Input('interval-component-home', 'n_intervals'),
+  File "/home/sanka/NIRE_EMS/volttron/FacadeAgent/Dashboard.py", line 40, in fetch_data_last_20_minutes
+    user='SANKA',
+  File "/home/sanka/NIRE_EMS/volttron/FacadeAgent/Dashboard.py", line 30, in get_db_connection
+    # Layout with navigation links
+  File "/home/sanka/NIRE_EMS/volttron/env/lib/python3.10/site-packages/mysql/connector/pooling.py", line 322, in connect
+    return CMySQLConnection(*args, **kwargs)
+  File "/home/sanka/NIRE_EMS/volttron/env/lib/python3.10/site-packages/mysql/connector/connection_cext.py", line 151, in __init__
+    self.connect(**kwargs)
+  File "/home/sanka/NIRE_EMS/volttron/env/lib/python3.10/site-packages/mysql/connector/abstracts.py", line 1399, in connect
+    self._open_connection()
+  File "/home/sanka/NIRE_EMS/volttron/env/lib/python3.10/site-packages/mysql/connector/connection_cext.py", line 339, in _open_connection
+    raise get_mysql_exception(
+mysql.connector.errors.DatabaseError: 2003 (HY000): Can't connect to MySQL server on '192.168.10.52:3306' (111)
+[2024-09-11 17:08:42 +0000] [871191] [CRITICAL] WORKER TIMEOUT (pid:1088201)
+[2024-09-11 17:08:42 +0000] [1088201] [ERROR] Error handling request (no URI read)
+Traceback (most recent call last):
+  File "/home/sanka/NIRE_EMS/volttron/env/lib/python3.10/site-packages/gunicorn/workers/sync.py", line 133, in handle
+    req = next(parser)
+  File "/home/sanka/NIRE_EMS/volttron/env/lib/python3.10/site-packages/gunicorn/http/parser.py", line 41, in __next__
+    self.mesg = self.mesg_class(self.cfg, self.unreader, self.source_addr, self.req_count)
+  File "/home/sanka/NIRE_EMS/volttron/env/lib/python3.10/site-packages/gunicorn/http/message.py", line 259, in __init__
+    super().__init__(cfg, unreader, peer_addr)
+  File "/home/sanka/NIRE_EMS/volttron/env/lib/python3.10/site-packages/gunicorn/http/message.py", line 60, in __init__
+    unused = self.parse(self.unreader)
+  File "/home/sanka/NIRE_EMS/volttron/env/lib/python3.10/site-packages/gunicorn/http/message.py", line 271, in parse
+    self.get_data(unreader, buf, stop=True)
+  File "/home/sanka/NIRE_EMS/volttron/env/lib/python3.10/site-packages/gunicorn/http/message.py", line 262, in get_data
+    data = unreader.read()
+  File "/home/sanka/NIRE_EMS/volttron/env/lib/python3.10/site-packages/gunicorn/http/unreader.py", line 36, in read
+    d = self.chunk()
+  File "/home/sanka/NIRE_EMS/volttron/env/lib/python3.10/site-packages/gunicorn/http/unreader.py", line 63, in chunk
+    return self.sock.recv(self.mxchunk)
+  File "/home/sanka/NIRE_EMS/volttron/env/lib/python3.10/site-packages/gunicorn/workers/base.py", line 204, in handle_abort
+    sys.exit(1)
+SystemExit: 1
+[2024-09-11 17:08:42 +0000] [1088201] [INFO] Worker exiting (pid: 1088201)
+[2024-09-11 17:08:43 +0000] [3189963] [INFO] Booting worker with pid: 3189963
+[2024-09-12 17:56:56 +0000] [871191] [CRITICAL] WORKER TIMEOUT (pid:1088199)
+[2024-09-12 17:56:56 +0000] [1088199] [ERROR] Error handling request (no URI read)
+Traceback (most recent call last):
+  File "/home/sanka/NIRE_EMS/volttron/env/lib/python3.10/site-packages/gunicorn/workers/sync.py", line 133, in handle
+    req = next(parser)
+  File "/home/sanka/NIRE_EMS/volttron/env/lib/python3.10/site-packages/gunicorn/http/parser.py", line 41, in __next__
+    self.mesg = self.mesg_class(self.cfg, self.unreader, self.source_addr, self.req_count)
+  File "/home/sanka/NIRE_EMS/volttron/env/lib/python3.10/site-packages/gunicorn/http/message.py", line 259, in __init__
+    super().__init__(cfg, unreader, peer_addr)
+  File "/home/sanka/NIRE_EMS/volttron/env/lib/python3.10/site-packages/gunicorn/http/message.py", line 60, in __init__
+    unused = self.parse(self.unreader)
+  File "/home/sanka/NIRE_EMS/volttron/env/lib/python3.10/site-packages/gunicorn/http/message.py", line 271, in parse
+    self.get_data(unreader, buf, stop=True)
+  File "/home/sanka/NIRE_EMS/volttron/env/lib/python3.10/site-packages/gunicorn/http/message.py", line 262, in get_data
+    data = unreader.read()
+  File "/home/sanka/NIRE_EMS/volttron/env/lib/python3.10/site-packages/gunicorn/http/unreader.py", line 36, in read
+    d = self.chunk()
+  File "/home/sanka/NIRE_EMS/volttron/env/lib/python3.10/site-packages/gunicorn/http/unreader.py", line 63, in chunk
+    return self.sock.recv(self.mxchunk)
+  File "/home/sanka/NIRE_EMS/volttron/env/lib/python3.10/site-packages/gunicorn/workers/base.py", line 204, in handle_abort
+    sys.exit(1)
+SystemExit: 1
+[2024-09-12 17:56:56 +0000] [1088199] [INFO] Worker exiting (pid: 1088199)
+[2024-09-12 17:56:57 +0000] [871191] [ERROR] Worker (pid:1088199) was sent SIGKILL! Perhaps out of memory?
+[2024-09-12 17:56:57 +0000] [3689832] [INFO] Booting worker with pid: 3689832
+[2024-09-12 17:58:47 +0000] [871191] [CRITICAL] WORKER TIMEOUT (pid:2915625)
+[2024-09-12 17:58:47 +0000] [2915625] [ERROR] Error handling request (no URI read)
+Traceback (most recent call last):
+  File "/home/sanka/NIRE_EMS/volttron/env/lib/python3.10/site-packages/gunicorn/workers/sync.py", line 133, in handle
+    req = next(parser)
+  File "/home/sanka/NIRE_EMS/volttron/env/lib/python3.10/site-packages/gunicorn/http/parser.py", line 41, in __next__
+    self.mesg = self.mesg_class(self.cfg, self.unreader, self.source_addr, self.req_count)
+  File "/home/sanka/NIRE_EMS/volttron/env/lib/python3.10/site-packages/gunicorn/http/message.py", line 259, in __init__
+    super().__init__(cfg, unreader, peer_addr)
+  File "/home/sanka/NIRE_EMS/volttron/env/lib/python3.10/site-packages/gunicorn/http/message.py", line 60, in __init__
+    unused = self.parse(self.unreader)
+  File "/home/sanka/NIRE_EMS/volttron/env/lib/python3.10/site-packages/gunicorn/http/message.py", line 271, in parse
+    self.get_data(unreader, buf, stop=True)
+  File "/home/sanka/NIRE_EMS/volttron/env/lib/python3.10/site-packages/gunicorn/http/message.py", line 262, in get_data
+    data = unreader.read()
+  File "/home/sanka/NIRE_EMS/volttron/env/lib/python3.10/site-packages/gunicorn/http/unreader.py", line 36, in read
+    d = self.chunk()
+  File "/home/sanka/NIRE_EMS/volttron/env/lib/python3.10/site-packages/gunicorn/http/unreader.py", line 63, in chunk
+    return self.sock.recv(self.mxchunk)
+  File "/home/sanka/NIRE_EMS/volttron/env/lib/python3.10/site-packages/gunicorn/workers/base.py", line 204, in handle_abort
+    sys.exit(1)
+SystemExit: 1
+[2024-09-12 17:58:47 +0000] [2915625] [INFO] Worker exiting (pid: 2915625)
+[2024-09-12 17:58:47 +0000] [3690433] [INFO] Booting worker with pid: 3690433
+[2024-09-12 18:00:27 +0000] [871191] [CRITICAL] WORKER TIMEOUT (pid:3689832)
+[2024-09-12 18:00:27 +0000] [3689832] [ERROR] Error handling request (no URI read)
+Traceback (most recent call last):
+  File "/home/sanka/NIRE_EMS/volttron/env/lib/python3.10/site-packages/gunicorn/workers/sync.py", line 133, in handle
+    req = next(parser)
+  File "/home/sanka/NIRE_EMS/volttron/env/lib/python3.10/site-packages/gunicorn/http/parser.py", line 41, in __next__
+    self.mesg = self.mesg_class(self.cfg, self.unreader, self.source_addr, self.req_count)
+  File "/home/sanka/NIRE_EMS/volttron/env/lib/python3.10/site-packages/gunicorn/http/message.py", line 259, in __init__
+    super().__init__(cfg, unreader, peer_addr)
+  File "/home/sanka/NIRE_EMS/volttron/env/lib/python3.10/site-packages/gunicorn/http/message.py", line 60, in __init__
+    unused = self.parse(self.unreader)
+  File "/home/sanka/NIRE_EMS/volttron/env/lib/python3.10/site-packages/gunicorn/http/message.py", line 271, in parse
+    self.get_data(unreader, buf, stop=True)
+  File "/home/sanka/NIRE_EMS/volttron/env/lib/python3.10/site-packages/gunicorn/http/message.py", line 262, in get_data
+    data = unreader.read()
+  File "/home/sanka/NIRE_EMS/volttron/env/lib/python3.10/site-packages/gunicorn/http/unreader.py", line 36, in read
+    d = self.chunk()
+  File "/home/sanka/NIRE_EMS/volttron/env/lib/python3.10/site-packages/gunicorn/http/unreader.py", line 63, in chunk
+    return self.sock.recv(self.mxchunk)
+  File "/home/sanka/NIRE_EMS/volttron/env/lib/python3.10/site-packages/gunicorn/workers/base.py", line 204, in handle_abort
+    sys.exit(1)
+SystemExit: 1
+[2024-09-12 18:00:27 +0000] [3689832] [INFO] Worker exiting (pid: 3689832)
+[2024-09-12 18:00:27 +0000] [3690924] [INFO] Booting worker with pid: 3690924
+[2024-09-12 20:14:04,565] ERROR in app: Exception on /_dash-update-component [POST]
+Traceback (most recent call last):
+  File "/home/sanka/NIRE_EMS/volttron/env/lib/python3.10/site-packages/flask/app.py", line 1473, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/home/sanka/NIRE_EMS/volttron/env/lib/python3.10/site-packages/flask/app.py", line 882, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/home/sanka/NIRE_EMS/volttron/env/lib/python3.10/site-packages/flask/app.py", line 880, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/sanka/NIRE_EMS/volttron/env/lib/python3.10/site-packages/flask/app.py", line 865, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+  File "/home/sanka/NIRE_EMS/volttron/env/lib/python3.10/site-packages/dash/dash.py", line 1373, in dispatch
+    ctx.run(
+  File "/home/sanka/NIRE_EMS/volttron/env/lib/python3.10/site-packages/dash/_callback.py", line 465, in add_context
+    output_value = _invoke_callback(func, *func_args, **func_kwargs)
+  File "/home/sanka/NIRE_EMS/volttron/env/lib/python3.10/site-packages/dash/_callback.py", line 40, in _invoke_callback
+    return func(*args, **kwargs)  # %% callback invoked %%
+  File "/home/sanka/NIRE_EMS/volttron/FacadeAgent/Dashboard.py", line 466, in update_home_page
+    fig1 = px.pie(
+  File "/home/sanka/NIRE_EMS/volttron/env/lib/python3.10/site-packages/plotly/express/_chart_types.py", line 1482, in pie
+    return make_figure(
+  File "/home/sanka/NIRE_EMS/volttron/env/lib/python3.10/site-packages/plotly/express/_core.py", line 2090, in make_figure
+    args = build_dataframe(args, constructor)
+  File "/home/sanka/NIRE_EMS/volttron/env/lib/python3.10/site-packages/plotly/express/_core.py", line 1348, in build_dataframe
+    args["data_frame"] = pd.DataFrame(args["data_frame"])
+  File "/home/sanka/NIRE_EMS/volttron/env/lib/python3.10/site-packages/pandas/core/frame.py", line 778, in __init__
+    mgr = dict_to_mgr(data, index, columns, dtype=dtype, copy=copy, typ=manager)
+  File "/home/sanka/NIRE_EMS/volttron/env/lib/python3.10/site-packages/pandas/core/internals/construction.py", line 503, in dict_to_mgr
+    return arrays_to_mgr(arrays, columns, index, dtype=dtype, typ=typ, consolidate=copy)
+  File "/home/sanka/NIRE_EMS/volttron/env/lib/python3.10/site-packages/pandas/core/internals/construction.py", line 114, in arrays_to_mgr
+    index = _extract_index(arrays)
+  File "/home/sanka/NIRE_EMS/volttron/env/lib/python3.10/site-packages/pandas/core/internals/construction.py", line 677, in _extract_index
+    raise ValueError("All arrays must be of the same length")
+ValueError: All arrays must be of the same length
+[2024-09-12 20:16:01 +0000] [871191] [INFO] Handling signal: term
+[2024-09-12 20:16:01 +0000] [3690433] [INFO] Worker exiting (pid: 3690433)
+[2024-09-12 20:16:01 +0000] [3189963] [INFO] Worker exiting (pid: 3189963)
+[2024-09-12 20:16:01 +0000] [3690924] [INFO] Worker exiting (pid: 3690924)
+[2024-09-12 20:16:01 +0000] [1088200] [INFO] Worker exiting (pid: 1088200)
+[2024-09-12 20:16:03 +0000] [871191] [INFO] Shutting down: Master
