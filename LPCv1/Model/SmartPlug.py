@@ -88,7 +88,7 @@ class SmartPlug(Observer,IoTDevice):
         self._status=status
         if  self._power_consumption > self._max_power_rating:
             self._max_power_rating= self._power_consumption
-        logger.info(f"updating the smart plug{ self._id}: power {self._power_consumption} : priority { self._priority} : status {self._status}: powr_multiply_factor {self._power_multiply_factor}")
+        logger.info(f"updating the smart plug{ self._id}: power {power_consumption} : priority { self._priority} : status {self._status}: powr_multiply_factor {self._power_multiply_factor}")
         
     def _check_Health(self)-> None:
         pass

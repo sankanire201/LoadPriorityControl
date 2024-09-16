@@ -9,6 +9,7 @@ from Controller.DirectControl import DirectControl
 from Controller.SheddingControl import SheddingControl
 from Controller.IncrementalControl import IncrementalControl
 from Controller.LoadPriorityControl import LoadPriorityControl
+from Model.IoTDeviceGroup import IoTDeviceGroup
 logger = logging.getLogger(__name__)
 
 
@@ -19,6 +20,7 @@ class IoTDeviceGroupManager(IoTFacadeManager):
         self._groups=[]
         self._group_control_stratagey={}
         self._sorted_groups={}
+        self._merged_groups= IoTDeviceGroup()
         
     def group_By_Priority(self) -> IoTDeviceGroup:
         for group in self._groups:
@@ -38,6 +40,7 @@ class IoTDeviceGroupManager(IoTFacadeManager):
             raise KeyError('The Item is already in the list')
         else:
             self._groups.append(group)
+            self._merge_Groups()
     
     def remove_Group(self, group: IoTDeviceGroup) -> None:
         if not self._groups:
@@ -65,3 +68,24 @@ class IoTDeviceGroupManager(IoTFacadeManager):
         elif cmd[0]=='lpc':
             self._group_control_stratagey[group]=(LoadPriorityControl(),cmd)
         logger.info(f"Here is the group controllers >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>{self._group_control_stratagey}and the control input {cmd}")
+        
+    def _merge_Groups(self):
+        for group in self._groups:
+            self._merged_groups._devices.update(group._devices)
+        print(self._merged_groups._devices)
+        
+    def control_All_Groups(self,cmd):
+        print(self._merged_groups.get_Facade_Consumption())
+        if cmd[0]=='direct':
+            controller=DirectControl()
+            controller.execute(self._merged_groups,cmd)
+        elif cmd[0]=='increment':
+           controller=IncrementalControl()
+           controller.execute(self._merged_groups,cmd)
+        elif cmd[0]=='shed':
+            controller=SheddingControl()
+            controller.execute(self._merged_groups,cmd)
+        elif cmd[0]=='lpc':
+            controller=LoadPriorityControl()
+            controller.execute(self._merged_groups,cmd)    
+        
