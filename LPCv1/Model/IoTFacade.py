@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 import sys
-sys.path.append("C:/Users/sanka.liyanage/EMSDesign/LPCv1/")
+sys.path.append("/home/sanka/NIRE_EMS/volttron/LoadPriorityControl/LPCv1/")
 from Model.IoTDevice import IoTDevice
 
 
@@ -13,6 +13,10 @@ class IoTFacade(ABC):
         
     @abstractmethod
     def turn_On(self, device_id: int)->None:
+        pass
+    
+    @abstractmethod
+    def set_parameters(self_id: int)->None: # this is to set the additional parameters of a device
         pass
     
     @abstractmethod
@@ -29,6 +33,13 @@ class IoTFacade(ABC):
     
     @abstractmethod
     def get_Power_Consumption(self, device_id: int) ->int:
+        pass
+    
+    @abstractmethod
+    def get_Facade_Consumption(self)->dict:
+        pass
+    @abstractmethod   
+    def get_Facade_Max_rating(self)->dict:
         pass
     
     @abstractmethod

@@ -7,5 +7,5 @@ class Observer(ABC):
         self._observerid=None
         
     @abstractmethod    
-    def update(self,power_consumption :int, status: int, priority: int) -> None:
+    def update(self,power_consumption :int, status: int, priority: int, power_multiply_factor: float) -> None:
         pass

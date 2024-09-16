@@ -1,9 +1,9 @@
 import sys
-sys.path.append("C:/Users/sanka.liyanage/EMSDesign/LPCv1/")
+sys.path.append("/home/sanka/NIRE_EMS/volttron/LoadPriorityControl/LPCv1/")
 from Model.IoTDeviceGroup import IoTDeviceGroup
 from Controller.ControlStrategy import ControlStrategy
-
 import logging
+
 logger = logging.getLogger(__name__)
 
 class DirectControl(ControlStrategy):

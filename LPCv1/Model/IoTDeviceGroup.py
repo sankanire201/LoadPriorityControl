@@ -1,10 +1,11 @@
 
 import sys
-sys.path.append("C:/Users/sanka.liyanage/EMSDesign/LPCv1/")
+sys.path.append("/home/sanka/NIRE_EMS/volttron/LoadPriorityControl/LPCv1/")
 from Model.IoTFacade import IoTFacade
 from Model.IoTDevice import IoTDevice
 from Model.SmartPlug import SmartPlug
 import logging
+from itertools import groupby
 logger = logging.getLogger(__name__)
 
 
@@ -61,7 +62,6 @@ class IoTDeviceGroup(IoTFacade):
                     logger.error(f"Facade is Empty {e}")
         except Exception as e:
                 logger.error(f"Error in the Facade: {e}")
-
     
     def get_Devices(self) -> dict:
         return self._devices
@@ -73,20 +73,39 @@ class IoTDeviceGroup(IoTFacade):
     def all_Off(self) -> None:
         for device in self._devices:
             self.turn_On(device._id)
+            
+    def get_Facade_Consumption(self)->dict:
+        sorted_smart_plugs = sorted(self._devices.values(),key=lambda plug: plug._priority)
+        power_consumption_by_priority = {}
+        for key, group in groupby(sorted_smart_plugs, key=lambda plug: plug._priority):
+            power_consumption_by_priority[key] = sum(plug._power_consumption for plug in group)
+        return power_consumption_by_priority
     
-# if __name__ == "__main__":
-#         plug1 =SmartPlug(1,1)
-#         plug2 =SmartPlug(2,1)
-#         plug3 =SmartPlug(3,1)
+    def get_Facade_Max_rating(self)->dict:
+        sorted_smart_plugs = sorted(self._devices.values(),key=lambda plug: plug._priority)
+        max_power_rating_by_priority = {}
+        for key, group in groupby(sorted_smart_plugs, key=lambda plug: plug._priority):
+            max_power_rating_by_priority[key] = sum(plug._max_power_rating for plug in group)
+        return max_power_rating_by_priority
+    
+    def set_parameters(self_id: int)->None: # this is to set the additional parameters of a device
+        pass
         
-#         control=SimpleControlStrategy()
-#         plug1.set_Power_Consumption(100)
-#         plug2.set_Power_Consumption(30)
-#         plug3.set_Power_Consumption(200)
+#if __name__ == "__main__":
+        # plug1 =SmartPlug(1,1)
+        # plug2 =SmartPlug(2,1)
+        # plug3 =SmartPlug(3,1)
         
-#         group = IoTDeviceGroup()
-#         group.add_Device(plug1)
-#         group.add_Device(plug2)
-#         group.add_Device(plug3)
+        # plug1.set_Power_Consumption(100)
+        # plug2.set_Power_Consumption(30)
+        # plug3.set_Power_Consumption(200)
+        # plug1.set_Priority(2)
+        # plug2.set_Priority(0)
+        # plug3.set_Priority(0)
         
-#         control.execute(group)
+        # group = IoTDeviceGroup()
+        # group.add_Device(plug1)
+        # group.add_Device(plug2)
+        # group.add_Device(plug3)
+        # print(group.get_Facade_Consumption())
+        

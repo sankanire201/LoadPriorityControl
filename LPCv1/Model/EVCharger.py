@@ -10,27 +10,29 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-class SmartPlug(Observer,IoTDevice):
+class EVCharger(IoTDevice,Observer):
     """_summary_
-    The smart plug describes the methods to control and monitor a smart Plug
+    EvChager present the object for Juice Box chager 
     Args:
-        Observer ( Interface): observer for updating IoTdevice statusS
-        IoTDevice ( Interface): Interface to use to derive the SmartPlug class
-    """    
-    def __init__(self,id :str,vip) -> None:
+        IoTDevice (_type_): _description_
+        Observer (_type_): _description_
+    """
+    
+    def __init__(self, id:str, vip) -> None:
+        super().__init__()
         """_summary_
 
         Args:
             id (int): device Id
             vip (obj): volttron vip connection for communication in the volttron message bus
-        """        
-        super().__init__()
+        """  
         self._id=id
         self._status=0
         self._power_consumption=0
         self._current=0
         self._voltage=0
         self._frequency=0
+        self._currentcommand=0
         self._connected=0
         self._flagged=False
         self._last_command=0
@@ -42,60 +44,68 @@ class SmartPlug(Observer,IoTDevice):
         self._max_power_rating=0
         self._power_multiply_factor=1
         self._control_attempts=0
-        self._deviceType='plug'
-        self._is_defferable= False
-        self._can_control_power= False
+        self._deviceType='EV'
+        self._is_defferable= True
+        self._can_control_power=True
         self._energy_consumption=0
         self._temperature=0
+        self._power_consumption_before_last_command=0
         
     def turn_On(self) -> None:
         self._message.message_type='command'
-        self._message.payload={'cmd':1}
+        self._message.payload={'cmd':40}
         self._message.priority=self._priority
         self.publish()
         self._last_command=self._message
-        
+        self._status=1
+        logger.info(">>>>>>>>>>>>>>>>>>>>>> Turning on EV charger")
+    
     def turn_Off(self) -> None:
         self._message.message_type='command'
         self._message.payload={'cmd':0}
         self._message.priority=self._priority
         self.publish()
         self._last_command=self._message
+        self._status=0
+        logger.info(">>>>>>>>>>>>>>>>>>>>>> Turning of EV charger")
     
-    def get_Power_Consumption(self) -> int:
-        return self._power_consumption
+    def set_parameters(self,para: int) -> None:
+        self._message.message_type='command'
+        self._message.payload={'cmd':para}
+        self._message.priority=self._priority
+        self.publish()
+        self._last_command=self._message
+        logger.info(">>>>>>>>>>>>>>>>>>>>>> Changing Power of the EV")
     
     def set_Power_Consumption(self, power: int) -> None:
-        self._power_consumption = power*self._power_multiply_factor
+        self._power_consumption = power
+    
+    def get_Power_Consumption(self) -> int:
+        return super().get_Power_Consumption()
     
     def get_Device_Id(self) -> int:
-        return self._id
+        return super().get_Device_Id()
     
     def set_Priority(self, priority: int) -> None:
-        self._priority=priority
+        return super().set_Priority(priority)
     
     def get_Priority(self) -> int:
-        return self._priority
+        return super().get_Priority()
     
-    def update(self, power_consumption: int, status: int, priority: int) -> None:
-        """_summary_
-        this method is executed by the observer when ever the power consumption is updated
-        Args:
-            power_consumption (int): instatntanious power consumption of the smart plug
-        """        
-        self.set_Power_Consumption(power_consumption)
+    def update(self, current: int, frequency: int, priority: int, voltage: float, powercommand :int, energyconsumption: int, temperature: int, status: int) -> None:
+
+        self.set_Power_Consumption(voltage*current/100)
+        self._current=current
+        self._voltage=voltage
+        self._frequency=frequency
+        self._currentcommand=powercommand
         self._priority=priority
-        self._status=status
+        self._energy_consumption=energyconsumption
+        self._status= status
+        self._temperature=temperature
         if  self._power_consumption > self._max_power_rating:
             self._max_power_rating= self._power_consumption
-        logger.info(f"updating the smart plug{ self._id}: power {power_consumption} : priority { self._priority} : status {self._status}: powr_multiply_factor {self._power_multiply_factor}")
-        
-    def _check_Health(self)-> None:
-        pass
-    
-    def isFlaged(self)->None:
-        return self._flagged == True
-    
+        #logger.info(f"This is charger info >>>>>>>>>>>>>>>>>>>>>>>>>:{current, frequency, priority, voltage, powercommand,voltage/10*current/10}")
     def publish(self) -> bool:
         """_summary_
         this method publish the message to the volttron message bus
@@ -104,13 +114,3 @@ class SmartPlug(Observer,IoTDevice):
         """        
         self._send.publish(self._message,self._deviceType)
         return bool
-    
-    def set_parameters(self, para : int)->None:
-        pass
-    
-# if __name__ == "__main__":
-    
-#     plug = SmartPlug(1,1)
-#     plug.turn_On()
-#     plug.turn_Off()
-#     print(plug.isFlaged())
